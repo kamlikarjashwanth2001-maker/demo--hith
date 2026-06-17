@@ -1,1941 +1,1898 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HITH - Threat Hunt</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #050d1a;
-            color: white;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                90deg,
-                transparent,
-                transparent 60px,
-                rgba(255,255,255,0.015) 60px,
-                rgba(255,255,255,0.015) 61px
-            );
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* ===== NAVBAR ===== */
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 50px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #00d4ff, #0066cc);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .logo-text span:first-child {
-            display: block;
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 2px;
-        }
-
-        .logo-text span:last-child {
-            display: block;
-            font-size: 10px;
-            letter-spacing: 3px;
-            color: #8899aa;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            list-style: none;
-        }
-
-        .nav-links li a {
-            text-decoration: none;
-            color: #cdd6e0;
-            font-size: 14px;
-            padding: 8px 16px;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-links li a:hover {
-            color: white;
-            background: rgba(255,255,255,0.08);
-        }
-
-        .nav-links li a.active {
-            background: #1e2a3a;
-            color: white;
-            font-weight: 600;
-        }
-
-        .nav-btn {
-            background: #00d4ff;
-            color: #050d1a;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background: #00b8d9;
-            transform: translateY(-1px);
-        }
-
-        /* ===== HERO SECTION ===== */
-        .hero {
-            position: relative;
-            z-index: 5;
-            padding: 80px 50px 100px;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 25px;
-            padding: 8px 18px;
-            font-size: 12px;
-            letter-spacing: 2px;
-            color: #aab4c0;
-            margin-bottom: 40px;
-        }
-
-        .hero-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: #4a6cf7;
-            border-radius: 50%;
-        }
-
-        .hero h1 {
-            font-size: clamp(50px, 7vw, 100px);
-            font-weight: 800;
-            line-height: 1.05;
-            color: white;
-            margin-bottom: 30px;
-            max-width: 900px;
-            letter-spacing: -2px;
-        }
-
-        .hero p {
-            font-size: 16px;
-            line-height: 1.7;
-            color: #8899aa;
-            max-width: 520px;
-            margin-bottom: 45px;
-        }
-
-        .hero p strong {
-            color: white;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn-light {
-            background: white;
-            color: #050d1a;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-light:hover {
-            background: #e0e0e0;
-            transform: translateY(-2px);
-        }
-
-        .btn-dark {
-            background: #1a2535;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 14px 28px;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-dark:hover {
-            background: #243044;
-            transform: translateY(-2px);
-        }
-
-        /* ===== SECTION LABELS ===== */
-        .section-label {
-            font-size: 11px;
-            letter-spacing: 3px;
-            color: #00d4ff;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        /* ===== MEET VIRANETRA SECTION ===== */
-        .viranetra-section {
-            padding: 80px 50px;
-            position: relative;
-            z-index: 5;
-        }
-
-        .viranetra-section h2 {
-            font-size: clamp(36px, 5vw, 60px);
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .viranetra-section h2 span {
-            color: #00d4ff;
-        }
-
-        .viranetra-section > p {
-            font-size: 16px;
-            color: #8899aa;
-            max-width: 700px;
-            line-height: 1.7;
-            margin-bottom: 50px;
-        }
-
-        /* Dashboard Window */
-        .dashboard-window {
-            background: #0a1628;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-        }
-
-        .window-header {
-            background: #0d1e30;
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .window-dots {
-            display: flex;
-            gap: 7px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .dot-red { background: #ff5f57; }
-        .dot-yellow { background: #ffbd2e; }
-        .dot-green { background: #28ca41; }
-
-        .window-title {
-            font-size: 12px;
-            color: #8899aa;
-            font-family: monospace;
-        }
-
-        .live-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: #00d4ff;
-        }
-
-        .live-dot {
-            width: 7px;
-            height: 7px;
-            background: #00d4ff;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .dashboard-content {
-            display: flex;
-            height: 500px;
-        }
-
-        /* Sidebar */
-        .dash-sidebar {
-            width: 200px;
-            background: #091422;
-            padding: 20px 0;
-            border-right: 1px solid rgba(255,255,255,0.06);
-            flex-shrink: 0;
-        }
-
-        .dash-sidebar ul {
-            list-style: none;
-        }
-
-        .dash-sidebar ul li {
-            padding: 10px 20px;
-            font-size: 13px;
-            color: #8899aa;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .dash-sidebar ul li:hover {
-            color: white;
-            background: rgba(255,255,255,0.04);
-        }
-
-        .dash-sidebar ul li.active {
-            background: rgba(0, 212, 255, 0.1);
-            color: #00d4ff;
-            border-left: 2px solid #00d4ff;
-        }
-
-        .dash-sidebar ul li::before {
-            content: '•';
-            font-size: 8px;
-        }
-
-        /* Main dashboard area */
-        .dash-main {
-            flex: 1;
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        /* Stats cards */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: #0d1e30;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        .stat-card .stat-label {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #8899aa;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .stat-card .stat-value {
-            font-size: 26px;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 8px;
-        }
-
-        .stat-bar {
-            height: 2px;
-            background: #00d4ff;
-            border-radius: 1px;
-            width: 60%;
-        }
-
-        /* Security Posture Circle */
-        .posture-card {
-            background: #0d1e30;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 10px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .circle-gauge {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: conic-gradient(#00d4ff 0deg 313deg, #1a2535 313deg 360deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .circle-gauge::before {
-            content: '';
-            position: absolute;
-            width: 58px;
-            height: 58px;
-            background: #0d1e30;
-            border-radius: 50%;
-        }
-
-        .circle-gauge span {
-            position: relative;
-            z-index: 1;
-            font-size: 18px;
-            font-weight: 800;
-            color: white;
-        }
-
-        .posture-info .score-sub {
-            font-size: 10px;
-            color: #8899aa;
-        }
-
-        .posture-trend {
-            color: #00d4ff;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .posture-sub {
-            font-size: 11px;
-            color: #8899aa;
-        }
-
-        /* Bottom row */
-        .dash-bottom {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .timeline-card {
-            background: #0d1e30;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        .timeline-card h4 {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .timeline-card p {
-            font-size: 10px;
-            color: #8899aa;
-            margin-bottom: 10px;
-        }
-
-        .threat-feed {
-            background: #0d1e30;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        .threat-feed h4 {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .feed-item {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .feed-item:last-child { border-bottom: none; }
-
-        .feed-item .feed-title {
-            font-size: 12px;
-            color: #cdd6e0;
-            margin-bottom: 3px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .feed-item .feed-title::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .feed-item.critical .feed-title::before { background: #ff4444; }
-        .feed-item.high .feed-title::before { background: #ffaa00; }
-        .feed-item.medium .feed-title::before { background: #00d4ff; }
-        .feed-item.low .feed-title::before { background: #00ff88; }
-
-        .feed-item .feed-meta {
-            font-size: 10px;
-            margin-left: 12px;
-        }
-
-        .feed-item.critical .feed-meta { color: #ff4444; }
-        .feed-item.high .feed-meta { color: #ffaa00; }
-        .feed-item.medium .feed-meta { color: #00d4ff; }
-        .feed-item.low .feed-meta { color: #00ff88; }
-
-        /* ===== BOTTOM STATS ROW (attack surface etc) ===== */
-        .bottom-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .bottom-stat-card {
-            background: #0d1e30;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        .bottom-stat-card .bsc-label {
-            font-size: 9px;
-            letter-spacing: 2px;
-            color: #8899aa;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .bottom-stat-card .bsc-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 4px;
-        }
-
-        .bottom-stat-card .bsc-sub {
-            font-size: 11px;
-            color: #8899aa;
-        }
-
-        /* ===== FEATURES GRID ===== */
-        .features-section {
-            padding: 60px 50px;
-            position: relative;
-            z-index: 5;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
-
-        .feature-card {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px;
-            padding: 24px;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            border-color: rgba(0,212,255,0.3);
-            transform: translateY(-3px);
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(0,212,255,0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(0,212,255,0.2);
-        }
-
-        .feature-card h3 {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: white;
-        }
-
-        .feature-card p {
-            font-size: 13px;
-            color: #8899aa;
-            line-height: 1.6;
-        }
-
-        /* ===== THREAT COMMAND CENTER ===== */
-        .threat-center {
-            padding: 80px 50px;
-            position: relative;
-            z-index: 5;
-            background: linear-gradient(180deg, #050d1a 0%, #071520 100%);
-        }
-
-        .threat-center-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 40px;
-        }
-
-        .threat-center h2 {
-            font-size: clamp(36px, 5vw, 60px);
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .threat-center h2 span {
-            color: #00d4ff;
-        }
-
-        .threat-center > .threat-center-header > div > p {
-            font-size: 15px;
-            color: #8899aa;
-            max-width: 600px;
-            line-height: 1.7;
-        }
-
-        .soc-badge {
-            background: rgba(0,212,255,0.08);
-            border: 1px solid rgba(0,212,255,0.2);
-            border-radius: 25px;
-            padding: 8px 18px;
-            font-size: 12px;
-            color: #00d4ff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-        }
-
-        .soc-dot {
-            width: 7px;
-            height: 7px;
-            background: #00ff88;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Threat stats */
-        .threat-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .threat-stat {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .threat-stat .ts-label {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #8899aa;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        .threat-stat .ts-value {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-
-        .ts-value.orange { color: #ff8800; }
-        .ts-value.red { color: #ff4444; }
-        .ts-value.cyan { color: #00d4ff; }
-        .ts-value.green { color: #00ff88; }
-
-        .threat-stat .ts-sub {
-            font-size: 12px;
-            color: #8899aa;
-        }
-
-        /* Map + chart row */
-        .map-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .map-card {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 300px;
-        }
-
-        .map-card-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-
-        .map-card h4 {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .map-events {
-            font-size: 12px;
-            color: #00d4ff;
-        }
-
-        .map-card p {
-            font-size: 11px;
-            color: #8899aa;
-            margin-bottom: 16px;
-        }
-
-        /* Dot map */
-        .dot-map {
-            position: relative;
-            width: 100%;
-            height: 220px;
-            background: #071520;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .dot-map-grid {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(circle, rgba(0,212,255,0.25) 1px, transparent 1px);
-            background-size: 12px 12px;
-        }
-
-        .attack-point {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .attack-point .ap-dot {
-            width: 12px;
-            height: 12px;
-            background: #ff4444;
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(255,68,68,0.6);
-            animation: attackPulse 2s infinite;
-        }
-
-        @keyframes attackPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,68,68,0.6); }
-            50% { transform: scale(1.3); box-shadow: 0 0 25px rgba(255,68,68,0.9); }
-        }
-
-        .attack-point .ap-label {
-            font-size: 9px;
-            color: white;
-            margin-top: 3px;
-            white-space: nowrap;
-            background: rgba(0,0,0,0.6);
-            padding: 1px 4px;
-            border-radius: 3px;
-        }
-
-        /* Donut chart card */
-        .donut-card {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .donut-card h4 {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .donut-card p {
-            font-size: 11px;
-            color: #8899aa;
-            margin-bottom: 16px;
-        }
-
-        .donut-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 16px;
-        }
-
-        .legend-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .legend-item:last-child { border-bottom: none; }
-
-        .legend-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-        }
-
-        .legend-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .legend-count {
-            font-size: 12px;
-            color: #8899aa;
-        }
-
-        /* Bottom row - timeline + activity */
-        .bottom-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .activity-card {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 20px;
-            font-family: monospace;
-        }
-
-        .activity-card-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-
-        .activity-card h4 {
-            font-size: 14px;
-            font-weight: 700;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .tail-badge {
-            font-size: 11px;
-            color: #00d4ff;
-        }
-
-        .activity-sub {
-            font-size: 11px;
-            color: #8899aa;
-            margin-bottom: 16px;
-            font-family: monospace;
-        }
-
-        .activity-line {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 12px;
-        }
-
-        .activity-line:last-child { border-bottom: none; }
-
-        .al-num {
-            color: #8899aa;
-            flex-shrink: 0;
-        }
-
-        .al-action {
-            padding: 1px 5px;
-            border-radius: 3px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .al-action.block { background: rgba(255,68,68,0.2); color: #ff4444; }
-        .al-action.detect { background: rgba(255,170,0,0.2); color: #ffaa00; }
-        .al-action.isolate { background: rgba(0,212,255,0.2); color: #00d4ff; }
-
-        .al-text {
-            color: #cdd6e0;
-            flex: 1;
-        }
-
-        .al-text .al-dim {
-            color: #8899aa;
-        }
-
-        /* ===== SERVICES SECTION ===== */
-        .services-section {
-            padding: 80px 50px;
-            position: relative;
-            z-index: 5;
-        }
-
-        .services-section h2 {
-            font-size: clamp(36px, 5vw, 60px);
-            font-weight: 800;
-            margin-bottom: 16px;
-            line-height: 1.1;
-        }
-
-        .services-section h2 span {
-            color: #00d4ff;
-        }
-
-        .services-section > p {
-            font-size: 15px;
-            color: #8899aa;
-            max-width: 600px;
-            line-height: 1.7;
-            margin-bottom: 50px;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
-
-        .service-card {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px;
-            padding: 24px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .service-card:hover {
-            border-color: rgba(0,212,255,0.3);
-            transform: translateY(-3px);
-        }
-
-        .service-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .service-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(0,212,255,0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            border: 1px solid rgba(0,212,255,0.2);
-        }
-
-        .arrow-link {
-            color: #8899aa;
-            font-size: 16px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .arrow-link:hover { color: #00d4ff; }
-
-        .service-card h3 {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .service-card > p {
-            font-size: 13px;
-            color: #8899aa;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .service-section-title {
-            font-size: 9px;
-            letter-spacing: 2px;
-            color: #00d4ff;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .service-list {
-            list-style: none;
-            margin-bottom: 16px;
-        }
-
-        .service-list li {
-            font-size: 12px;
-            color: #cdd6e0;
-            padding: 3px 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .service-list li::before {
-            content: '•';
-            color: #00d4ff;
-        }
-
-        .service-impact {
-            font-size: 12px;
-            color: #8899aa;
-            line-height: 1.5;
-        }
-
-        /* ===== METHODOLOGY SECTION ===== */
-        .methodology-section {
-            padding: 80px 50px;
-            position: relative;
-            z-index: 5;
-            background: linear-gradient(180deg, #050d1a 0%, #071520 100%);
-        }
-
-        .methodology-section h2 {
-            font-size: clamp(36px, 5vw, 56px);
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .methodology-section h2 span {
-            color: #00d4ff;
-        }
-
-        .methodology-section > p {
-            font-size: 15px;
-            color: #8899aa;
-            max-width: 600px;
-            line-height: 1.7;
-            margin-bottom: 50px;
-        }
-
-        .methodology-steps {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            position: relative;
-        }
-
-        .step-card {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 18px;
-            position: relative;
-            transition: all 0.3s;
-        }
-
-        .step-card:hover {
-            border-color: rgba(0,212,255,0.3);
-        }
-
-        .step-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .step-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(0,212,255,0.1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            border: 1px solid rgba(0,212,255,0.2);
-        }
-
-        .step-num {
-            font-size: 11px;
-            color: #8899aa;
-            font-family: monospace;
-        }
-
-        .step-card h4 {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .step-card p {
-            font-size: 11px;
-            color: #8899aa;
-            line-height: 1.5;
-        }
-
-        .step-arrow {
-            position: absolute;
-            right: -14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #00d4ff;
-            font-size: 12px;
-            z-index: 2;
-        }
-
-        /* ===== WHY HITH SECTION ===== */
-        .why-section {
-            padding: 80px 50px;
-            position: relative;
-            z-index: 5;
-        }
-
-        .why-section h2 {
-            font-size: clamp(36px, 5vw, 60px);
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .why-section h2 span {
-            color: #00d4ff;
-        }
-
-        .why-section > p {
-            font-size: 15px;
-            color: #8899aa;
-            max-width: 600px;
-            line-height: 1.7;
-            margin-bottom: 50px;
-        }
-
-        .comparison-table {
-            background: #0a1628;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .table-header {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            padding: 20px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .table-header span {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #8899aa;
-            text-transform: uppercase;
-        }
-
-        .table-header span:last-child {
-            color: #00d4ff;
-            font-weight: 700;
-        }
-
-        .table-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            padding: 18px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            align-items: center;
-            transition: background 0.2s;
-        }
-
-        .table-row:hover {
-            background: rgba(255,255,255,0.02);
-        }
-
-        .table-row:last-child { border-bottom: none; }
-
-        .table-row .capability {
-            font-size: 14px;
-            color: #cdd6e0;
-        }
-
-        .table-row .vendor-val {
-            font-size: 14px;
-        }
-
-        .vendor-val.cross { color: #ff4444; }
-        .vendor-val.partial { color: #ffaa00; }
-        .vendor-val.check { color: #00ff88; font-size: 18px; }
-
-        /* ===== GLOW EFFECTS ===== */
-        .glow {
-            position: fixed;
-            top: -100px;
-            right: -100px;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .glow2 {
-            position: fixed;
-            bottom: -200px;
-            left: 200px;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(0,100,200,0.06) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 1200px) {
-            .services-grid,
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .methodology-steps {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .stats-row,
-            .threat-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            nav { padding: 15px 20px; }
-            .nav-links { display: none; }
-            .hero,
-            .viranetra-section,
-            .threat-center,
-            .services-section,
-            .methodology-section,
-            .why-section,
-            .features-section { padding: 40px 20px; }
-            .services-grid,
-            .features-grid { grid-template-columns: 1fr; }
-            .methodology-steps { grid-template-columns: repeat(2, 1fr); }
-            .map-row,
-            .bottom-row { grid-template-columns: 1fr; }
-            .threat-stats { grid-template-columns: repeat(2, 1fr); }
-            .dashboard-content { flex-direction: column; height: auto; }
-            .dash-sidebar { width: 100%; }
-        }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HITH — Threat Hunt</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ============================================================
+   RESET & BASE
+============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --cyan:#00d4ff;
+  --cyan2:#00b8d9;
+  --bg:#040d18;
+  --bg2:#061221;
+  --card:#0a1628;
+  --card2:#0d1e30;
+  --border:rgba(255,255,255,0.07);
+  --text:#cdd6e0;
+  --muted:#6b7f96;
+  --red:#ff4444;
+  --orange:#ff8800;
+  --yellow:#ffaa00;
+  --green:#00ff88;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:#fff;
+  overflow-x:hidden;
+  line-height:1.6;
+}
+::selection{background:rgba(0,212,255,0.25);color:#fff}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#1a3a5c;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
+
+/* ============================================================
+   GRID NOISE BACKGROUND
+============================================================ */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.012) 59px,rgba(255,255,255,0.012) 60px),
+    repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,0.012) 59px,rgba(255,255,255,0.012) 60px);
+  pointer-events:none;z-index:0;
+}
+
+/* ============================================================
+   AMBIENT GLOWS
+============================================================ */
+.glow-top{
+  position:fixed;top:-200px;right:-100px;
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(0,212,255,0.07) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+}
+.glow-bot{
+  position:fixed;bottom:-300px;left:-100px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(0,100,200,0.07) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+}
+
+/* ============================================================
+   NAVBAR
+============================================================ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:68px;
+  background:rgba(4,13,24,0.82);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:all .3s ease;
+}
+nav.scrolled{background:rgba(4,13,24,0.96);box-shadow:0 4px 40px rgba(0,0,0,0.4)}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-icon{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,#00d4ff,#0066cc);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:900;color:#fff;
+  box-shadow:0 0 20px rgba(0,212,255,0.3);
+}
+.logo-text-wrap{display:flex;flex-direction:column;line-height:1}
+.logo-name{font-size:15px;font-weight:800;letter-spacing:2px;color:#fff}
+.logo-sub{font-size:9px;letter-spacing:3px;color:var(--muted)}
+.nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+.nav-links a{
+  text-decoration:none;color:var(--text);font-size:13.5px;font-weight:500;
+  padding:7px 14px;border-radius:8px;
+  transition:all .2s ease;
+}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-links a.active{color:var(--cyan);background:rgba(0,212,255,0.08)}
+.nav-cta{
+  background:var(--cyan);color:#040d18;
+  border:none;padding:9px 20px;border-radius:50px;
+  font-size:13px;font-weight:700;cursor:pointer;
+  transition:all .25s ease;white-space:nowrap;
+}
+.nav-cta:hover{background:#fff;transform:translateY(-1px);box-shadow:0 8px 25px rgba(0,212,255,0.35)}
+
+/* ============================================================
+   SECTION UTILITIES
+============================================================ */
+.section-wrap{position:relative;z-index:5}
+.section-label{
+  font-size:10.5px;letter-spacing:3.5px;
+  color:var(--cyan);text-transform:uppercase;
+  font-weight:700;margin-bottom:14px;
+}
+.section-title{font-size:clamp(34px,4.5vw,58px);font-weight:900;line-height:1.08;letter-spacing:-1.5px}
+.section-title span{color:var(--cyan)}
+.section-desc{font-size:15px;color:var(--muted);line-height:1.75;max-width:580px;margin-top:14px}
+
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+.reveal-left{opacity:0;transform:translateX(-30px);transition:opacity .7s ease,transform .7s ease}
+.reveal-left.visible{opacity:1;transform:none}
+.reveal-right{opacity:0;transform:translateX(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal-right.visible{opacity:1;transform:none}
+
+/* ============================================================
+   HERO
+============================================================ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;padding:120px 48px 80px;
+  position:relative;z-index:5;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:50px;padding:7px 16px;
+  font-size:11px;letter-spacing:2.5px;color:var(--text);
+  margin-bottom:36px;width:fit-content;
+}
+.hero-badge-dot{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:breathe 2s infinite}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.hero h1{
+  font-size:clamp(52px,7.5vw,108px);
+  font-weight:900;letter-spacing:-3px;line-height:1.0;
+  max-width:900px;margin-bottom:28px;
+}
+.hero-desc{
+  font-size:16px;color:var(--muted);line-height:1.8;
+  max-width:540px;margin-bottom:44px;
+}
+.hero-desc strong{color:#fff;font-weight:600}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff;color:#040d18;
+  border:none;padding:14px 26px;border-radius:50px;
+  font-size:14px;font-weight:700;cursor:pointer;
+  text-decoration:none;
+  transition:all .25s ease;
+}
+.btn-primary:hover{background:var(--cyan);transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,212,255,0.3)}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.06);color:#fff;
+  border:1px solid rgba(255,255,255,0.12);
+  padding:14px 26px;border-radius:50px;
+  font-size:14px;font-weight:600;cursor:pointer;
+  text-decoration:none;
+  transition:all .25s ease;
+}
+.btn-secondary:hover{background:rgba(255,255,255,0.1);border-color:rgba(0,212,255,0.4);transform:translateY(-2px)}
+.hero-scroll-hint{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  color:var(--muted);font-size:11px;letter-spacing:2px;animation:float 2s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+.scroll-line{width:1px;height:32px;background:linear-gradient(to bottom,var(--cyan),transparent)}
+
+/* ============================================================
+   VIRANETRA DASHBOARD
+============================================================ */
+.viranetra-section{padding:100px 48px;position:relative;z-index:5}
+.dash-window{
+  background:#061221;border-radius:18px;
+  border:1px solid rgba(255,255,255,0.08);
+  overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6),0 0 0 1px rgba(0,212,255,0.05);
+  margin-top:56px;
+}
+.dash-titlebar{
+  background:#071828;padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.win-dots{display:flex;gap:7px}
+.wd{width:13px;height:13px;border-radius:50%}
+.wd-r{background:#ff5f57}.wd-y{background:#ffbd2e}.wd-g{background:#28ca41}
+.win-path{font-size:12px;color:var(--muted);font-family:monospace}
+.win-live{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--cyan);font-weight:600}
+.live-pulse{
+  width:8px;height:8px;background:var(--cyan);border-radius:50%;
+  box-shadow:0 0 10px var(--cyan);
+  animation:pulse-glow 1.5s ease-in-out infinite;
+}
+@keyframes pulse-glow{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.dash-body{display:flex;min-height:480px}
+.dash-sidebar{
+  width:190px;background:#050f1c;
+  border-right:1px solid var(--border);
+  padding:20px 0;flex-shrink:0;
+}
+.dash-sidebar ul{list-style:none}
+.dash-sidebar li{
+  padding:9px 18px;font-size:12.5px;color:var(--muted);
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:all .2s ease;border-left:2px solid transparent;
+}
+.dash-sidebar li:hover{color:#fff;background:rgba(255,255,255,0.04)}
+.dash-sidebar li.active{
+  color:var(--cyan);background:rgba(0,212,255,0.06);
+  border-left-color:var(--cyan);
+}
+.dash-sidebar li::before{content:'•';font-size:6px;opacity:.6}
+.dash-sidebar li.active::before{opacity:1}
+.dash-main{flex:1;padding:20px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+
+/* Stat cards row */
+.stats-row{display:grid;grid-template-columns:220px 1fr 1fr 1fr;gap:12px}
+.stat-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:12px;padding:16px;
+  transition:border-color .3s;
+}
+.stat-card:hover{border-color:rgba(0,212,255,0.2)}
+.sc-label{
+  font-size:9.5px;letter-spacing:2px;color:var(--muted);
+  text-transform:uppercase;margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.sc-icon{font-size:14px}
+.sc-value{font-size:28px;font-weight:900;color:#fff;margin-bottom:8px;line-height:1}
+.sc-bar{height:2px;background:linear-gradient(90deg,var(--cyan),transparent);border-radius:1px;width:70%}
+
+/* Posture gauge */
+.posture-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:12px;padding:16px;
+  display:flex;align-items:center;gap:16px;
+}
+.gauge-wrap{position:relative;width:84px;height:84px;flex-shrink:0}
+.gauge-svg{width:84px;height:84px;transform:rotate(-90deg)}
+.gauge-bg{fill:none;stroke:#1a2f45;stroke-width:8}
+.gauge-fill{
+  fill:none;stroke:var(--cyan);stroke-width:8;
+  stroke-linecap:round;stroke-dasharray:220;
+  stroke-dashoffset:220;
+  transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1);
+  filter:drop-shadow(0 0 6px var(--cyan));
+}
+.gauge-num{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.gauge-num span:first-child{font-size:22px;font-weight:900}
+.gauge-num span:last-child{font-size:9px;color:var(--muted)}
+.posture-info{flex:1}
+.posture-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.posture-trend{color:var(--cyan);font-size:12px;font-weight:700}
+.posture-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Dash bottom */
+.dash-bottom{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mini-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:12px;padding:16px;
+}
+.mini-card h4{font-size:12.5px;font-weight:700;margin-bottom:3px}
+.mini-card .mc-sub{font-size:10px;color:var(--muted);margin-bottom:10px}
+.mc-legend{display:flex;gap:12px;margin-bottom:8px}
+.mc-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.mc-legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* Feed */
+.feed-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px}
+.feed-card h4{font-size:12.5px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.feed-item{
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:flex-start;gap:8px;
+}
+.feed-item:last-child{border-bottom:none}
+.fi-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.fi-dot.crit{background:var(--red);box-shadow:0 0 8px var(--red)}
+.fi-dot.high{background:var(--yellow)}
+.fi-dot.med{background:var(--cyan)}
+.fi-dot.low{background:var(--green)}
+.fi-title{font-size:11.5px;color:var(--text);margin-bottom:2px}
+.fi-meta{font-size:9.5px;font-weight:700;letter-spacing:1px}
+.fi-meta.crit{color:var(--red)}.fi-meta.high{color:var(--yellow)}.fi-meta.med{color:var(--cyan)}.fi-meta.low{color:var(--green)}
+
+/* Bottom stats strip */
+.bstats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 20px 20px}
+.bs-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;
+  transition:border-color .3s;
+}
+.bs-card:hover{border-color:rgba(0,212,255,0.2)}
+.bs-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+.bs-val{font-size:26px;font-weight:900;color:#fff;margin-bottom:4px}
+.bs-sub{font-size:11px;color:var(--muted)}
+
+/* ============================================================
+   FEATURES GRID
+============================================================ */
+.features-section{padding:80px 48px;position:relative;z-index:5}
+.features-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px;
+}
+.feat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:26px;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,212,255,0.04) 0%,transparent 60%);
+  opacity:0;transition:opacity .3s;
+}
+.feat-card:hover{border-color:rgba(0,212,255,0.3);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,0.4)}
+.feat-card:hover::before{opacity:1}
+.feat-icon{
+  width:50px;height:50px;
+  background:rgba(0,212,255,0.08);
+  border:1px solid rgba(0,212,255,0.15);
+  border-radius:13px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:18px;
+}
+.feat-card h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.feat-card p{font-size:12.5px;color:var(--muted);line-height:1.65}
+
+/* ============================================================
+   LIVE ATTACK MAP
+============================================================ */
+.attack-map-section{
+  padding:80px 48px;position:relative;z-index:5;
+  background:linear-gradient(180deg,var(--bg) 0%,#040e1c 100%);
+}
+.attack-map-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:36px;
+}
+.soc-online{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.15);
+  border-radius:50px;padding:8px 16px;font-size:12px;color:var(--green);
+}
+.soc-online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:breathe 1.5s infinite}
+
+/* Map container */
+.map-outer{
+  background:linear-gradient(180deg,#050d1e 0%,#040b18 100%);
+  border:1px solid rgba(0,212,255,0.1);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,0.6);
+}
+.map-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.map-topbar-left{display:flex;align-items:center;gap:10px}
+.map-logo-sm{
+  width:30px;height:30px;background:linear-gradient(135deg,var(--cyan),#0066cc);
+  border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.map-title-sm{font-size:13px;font-weight:700;letter-spacing:1px}
+.map-sub-sm{font-size:10px;color:var(--muted);margin-top:1px}
+.map-filter{
+  background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  border-radius:8px;padding:7px 14px;font-size:12px;color:#fff;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+}
+
+/* Canvas map */
+.map-canvas-wrap{position:relative;width:100%;height:460px}
+#attackMapCanvas{display:block;width:100%;height:100%}
+
+/* Tooltip */
+.map-tooltip{
+  position:absolute;
+  background:rgba(4,14,28,0.95);
+  border:1px solid rgba(255,68,68,0.4);
+  border-radius:10px;padding:14px 16px;
+  font-size:12px;pointer-events:none;
+  opacity:0;transition:opacity .3s;
+  min-width:180px;backdrop-filter:blur(10px);
+}
+.map-tooltip.visible{opacity:1}
+.tooltip-title{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.tooltip-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.tooltip-key{color:var(--muted);font-size:11px}
+.tooltip-val{font-size:11px;font-weight:600}
+.tooltip-val.red{color:var(--red)}
+.tooltip-val.orange{color:var(--orange)}
+.tooltip-val.green{color:var(--green)}
+
+/* Map bottom bar */
+.map-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;border-top:1px solid rgba(255,255,255,0.06);
+  gap:20px;
+}
+.intensity-legend{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.int-dots{display:flex;gap:5px;align-items:center}
+.int-dot{width:9px;height:9px;border-radius:50%}
+.live-feed-ticker{
+  display:flex;align-items:center;gap:24px;flex:1;overflow:hidden;
+}
+.ticker-item{
+  display:flex;align-items:center;gap:8px;font-size:11px;
+  white-space:nowrap;color:var(--muted);
+}
+.ticker-item .t-dot{width:7px;height:7px;border-radius:50%}
+.ticker-item .t-type{font-weight:700;letter-spacing:1px}
+.ticker-item .t-type.r{color:var(--red)}
+.ticker-item .t-type.y{color:var(--yellow)}
+.ticker-item .t-type.o{color:var(--orange)}
+.ticker-time{color:var(--muted)}
+.live-threats-box{
+  background:rgba(255,68,68,0.05);border:1px solid rgba(255,68,68,0.15);
+  border-radius:10px;padding:10px 16px;text-align:right;flex-shrink:0;
+}
+.lt-label{font-size:9px;letter-spacing:2px;color:var(--red);margin-bottom:2px}
+.lt-num{font-size:22px;font-weight:900;color:#fff}
+.lt-sub{font-size:10px;color:var(--muted)}
+.view-all{font-size:11px;color:var(--cyan);cursor:pointer;flex-shrink:0}
+
+/* ============================================================
+   THREAT COMMAND CENTER
+============================================================ */
+.tcc-section{padding:80px 48px;position:relative;z-index:5}
+.tcc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;flex-wrap:wrap;gap:20px}
+.tcc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.ts-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:22px;
+  transition:all .3s ease;
+}
+.ts-card:hover{border-color:rgba(0,212,255,0.2);transform:translateY(-2px)}
+.ts-lbl{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.ts-val{font-size:34px;font-weight:900;margin-bottom:6px;line-height:1}
+.ts-sub{font-size:12px;color:var(--muted)}
+.orange{color:var(--orange)}.red{color:var(--red)}.cyan{color:var(--cyan)}.green{color:var(--green)}
+
+/* Bottom charts row */
+.tcc-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tcc-chart-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:22px;
+}
+.tcc-chart-card h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.tcc-chart-card .cc-sub{font-size:11px;color:var(--muted);margin-bottom:16px}
+
+/* Activity stream */
+.activity-stream{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:22px;font-family:monospace;
+}
+.as-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.as-header h4{font-size:14px;font-weight:700;font-family:system-ui}
+.as-path{font-size:11px;color:var(--muted);margin-bottom:14px}
+.as-tail{font-size:11px;color:var(--cyan);font-weight:600}
+.as-line{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:11.5px;
+  animation:fadeInLine .4s ease;
+}
+@keyframes fadeInLine{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.as-line:last-child{border-bottom:none}
+.as-num{color:var(--muted);min-width:42px;flex-shrink:0}
+.as-badge{
+  padding:2px 6px;border-radius:4px;
+  font-size:9.5px;font-weight:800;letter-spacing:.5px;flex-shrink:0;
+}
+.as-badge.blk{background:rgba(255,68,68,0.15);color:var(--red)}
+.as-badge.det{background:rgba(255,170,0,0.15);color:var(--yellow)}
+.as-badge.iso{background:rgba(0,212,255,0.15);color:var(--cyan)}
+.as-badge.tri{background:rgba(0,255,136,0.12);color:var(--green)}
+.as-text{color:var(--text);flex:1}
+.as-dim{color:var(--muted)}
+
+/* ============================================================
+   SERVICES
+============================================================ */
+.services-section{padding:100px 48px;position:relative;z-index:5}
+.services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+.svc-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:26px;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.svc-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--cyan),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.svc-card:hover{border-color:rgba(0,212,255,0.25);transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,0.4)}
+.svc-card:hover::after{opacity:1}
+.svc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.svc-icon{
+  width:50px;height:50px;
+  background:rgba(0,212,255,0.08);
+  border:1px solid rgba(0,212,255,0.15);
+  border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.svc-arrow{color:var(--muted);font-size:18px;cursor:pointer;transition:color .2s}
+.svc-card:hover .svc-arrow{color:var(--cyan)}
+.svc-card h3{font-size:17px;font-weight:800;margin-bottom:10px}
+.svc-card>p{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:20px}
+.svc-section-lbl{
+  font-size:9px;letter-spacing:2px;color:var(--cyan);
+  text-transform:uppercase;font-weight:700;margin-bottom:8px;
+}
+.svc-list{list-style:none;margin-bottom:16px}
+.svc-list li{
+  font-size:12px;color:var(--text);padding:3px 0;
+  display:flex;align-items:center;gap:6px;
+}
+.svc-list li::before{content:'›';color:var(--cyan);font-weight:700}
+.svc-impact{font-size:12px;color:var(--muted);line-height:1.55;border-top:1px solid var(--border);padding-top:12px;margin-top:4px}
+
+/* ============================================================
+   METHODOLOGY
+============================================================ */
+.methodology-section{padding:100px 48px;position:relative;z-index:5}
+.method-steps{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:56px;position:relative}
+.method-steps::before{
+  content:'';position:absolute;top:36px;left:28px;right:28px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:.25;
+}
+.ms-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:18px;
+  transition:all .3s ease;
+  position:relative;
+}
+.ms-card:hover{border-color:rgba(0,212,255,0.35);transform:translateY(-5px);box-shadow:0 15px 40px rgba(0,0,0,0.4)}
+.ms-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ms-icon{
+  width:42px;height:42px;
+  background:rgba(0,212,255,0.08);
+  border:1px solid rgba(0,212,255,0.15);
+  border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.ms-num{font-size:11px;color:var(--muted);font-family:monospace;font-weight:700}
+.ms-card h4{font-size:12.5px;font-weight:800;margin-bottom:6px}
+.ms-card p{font-size:11px;color:var(--muted);line-height:1.55}
+
+/* ============================================================
+   WHY HITH
+============================================================ */
+.why-section{padding:100px 48px;position:relative;z-index:5}
+.compare-table{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;margin-top:56px;
+}
+.ct-head{
+  display:grid;grid-template-columns:2fr 1fr 1fr;
+  padding:20px 32px;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.02);
+}
+.ct-head span{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:700}
+.ct-head span:last-child{color:var(--cyan)}
+.ct-row{
+  display:grid;grid-template-columns:2fr 1fr 1fr;
+  padding:18px 32px;border-bottom:1px solid rgba(255,255,255,0.04);
+  align-items:center;
+  transition:background .2s;
+}
+.ct-row:hover{background:rgba(255,255,255,0.025)}
+.ct-row:last-child{border-bottom:none}
+.ct-cap{font-size:14px;color:var(--text)}
+.ct-x{color:var(--red);font-size:16px}
+.ct-p{color:var(--yellow);font-size:12px;font-weight:600}
+.ct-check{color:var(--green);font-size:18px}
+
+/* ============================================================
+   LEADERSHIP
+============================================================ */
+.leadership-section{padding:100px 48px;position:relative;z-index:5}
+.leaders-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+.leader-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+}
+.leader-card:hover{border-color:rgba(0,212,255,0.25);transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,0.45)}
+.leader-avatar{
+  height:200px;
+  background:linear-gradient(135deg,#061e35 0%,#0a2a48 100%);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.leader-avatar::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 60%,rgba(0,212,255,0.12) 0%,transparent 65%);
+}
+.avatar-initials{
+  font-size:48px;font-weight:900;color:var(--cyan);
+  letter-spacing:-2px;position:relative;z-index:1;
+  text-shadow:0 0 40px rgba(0,212,255,0.5);
+}
+.avatar-certs{
+  position:absolute;bottom:14px;left:14px;
+  display:flex;gap:5px;
+}
+.cert-badge{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
+  border-radius:4px;padding:3px 7px;
+  font-size:8.5px;letter-spacing:.5px;color:var(--text);font-family:monospace;
+}
+.leader-info{padding:20px}
+.leader-name{font-size:16px;font-weight:800;margin-bottom:4px}
+.leader-role{font-size:11px;color:var(--cyan);font-family:monospace;font-weight:600;letter-spacing:.5px;margin-bottom:10px}
+.leader-bio{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.leader-focus{font-size:11px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px}
+.leader-focus strong{color:var(--text);margin-right:4px}
+
+/* ============================================================
+   KNOWLEDGE CENTER
+============================================================ */
+.knowledge-section{padding:100px 48px;position:relative;z-index:5}
+.knowledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px}
+.know-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  cursor:pointer;
+}
+.know-card:hover{border-color:rgba(0,212,255,0.25);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,0.4)}
+.know-thumb{
+  height:200px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.know-thumb .ktype-badge{
+  position:absolute;top:14px;left:14px;
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);
+  border-radius:5px;padding:4px 10px;
+  font-size:9px;letter-spacing:2px;color:#fff;font-weight:700;text-transform:uppercase;
+  backdrop-filter:blur(4px);
+}
+.know-thumb .kicon{font-size:32px;opacity:.5}
+.know-body{padding:18px}
+.know-body h3{font-size:14.5px;font-weight:700;margin-bottom:6px;line-height:1.4}
+.know-body .kread{font-size:11px;color:var(--muted)}
+
+/* Card colors */
+.kc-1{background:linear-gradient(135deg,#061e2e,#0a3040)}
+.kc-2{background:linear-gradient(135deg,#07192a,#0a2840)}
+.kc-3{background:linear-gradient(135deg,#1a0a0a,#2a1010)}
+.kc-4{background:linear-gradient(135deg,#061e18,#0a2a20)}
+.kc-5{background:linear-gradient(135deg,#071828,#0a2438)}
+.kc-6{background:linear-gradient(135deg,#1a1408,#2a2010)}
+
+/* ============================================================
+   CONTACT
+============================================================ */
+.contact-section{padding:100px 48px;position:relative;z-index:5}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:56px}
+.contact-left{}
+.incident-box{
+  background:rgba(255,68,68,0.05);border:1px solid rgba(255,68,68,0.15);
+  border-radius:14px;padding:20px 24px;margin-bottom:20px;
+  display:flex;align-items:flex-start;gap:14px;
+}
+.ib-icon{font-size:24px}
+.ib-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.ib-sub{font-size:12px;color:var(--muted);margin-bottom:8px}
+.ib-phone{
+  color:var(--red);font-size:13px;font-weight:700;
+  text-decoration:none;display:flex;align-items:center;gap:6px;
+}
+.ib-phone:hover{color:#ff6666}
+.contact-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cc-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:16px 18px;
+  display:flex;align-items:center;gap:12px;
+  transition:border-color .2s;
+}
+.cc-item:hover{border-color:rgba(0,212,255,0.2)}
+.cc-icon{font-size:16px}
+.cc-lbl{font-size:9.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.cc-val{font-size:13px;font-weight:600;color:#fff}
+
+/* Form */
+.contact-form{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:32px;
+}
+.cf-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.cf-sub{font-size:12px;color:var(--muted);margin-bottom:28px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-group label{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;
+  color:#fff;font-size:13px;
+  transition:border-color .2s,box-shadow .2s;
+  outline:none;font-family:inherit;
+  resize:none;
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder{color:var(--muted)}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+  border-color:rgba(0,212,255,0.4);
+  box-shadow:0 0 0 3px rgba(0,212,255,0.08);
+}
+.form-group select option{background:#0a1628}
+.form-group textarea{height:100px}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.submit-btn{
+  width:100%;background:var(--cyan);color:#040d18;
+  border:none;padding:15px;border-radius:50px;
+  font-size:15px;font-weight:800;cursor:pointer;
+  margin-top:16px;
+  transition:all .25s ease;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.submit-btn:hover{background:#fff;transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,212,255,0.35)}
+.form-note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer{
+  border-top:1px solid var(--border);
+  padding:40px 48px;position:relative;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:20px;
+}
+.footer-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--cyan)}
+.footer-copy{font-size:11px;color:var(--muted)}
+
+/* ============================================================
+   ANIMATED COUNTER
+============================================================ */
+.counter{display:inline-block}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media(max-width:1200px){
+  .services-grid,.features-grid,.leaders-grid{grid-template-columns:repeat(2,1fr)}
+  .method-steps{grid-template-columns:repeat(4,1fr)}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .tcc-stats{grid-template-columns:repeat(2,1fr)}
+  .bstats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .hero,.viranetra-section,.features-section,.attack-map-section,
+  .tcc-section,.services-section,.methodology-section,.why-section,
+  .leadership-section,.knowledge-section,.contact-section{padding:60px 20px}
+  .knowledge-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .services-grid,.features-grid,.leaders-grid{grid-template-columns:1fr}
+  .method-steps{grid-template-columns:repeat(2,1fr)}
+  .tcc-bottom,.dash-bottom{grid-template-columns:1fr}
+  .map-canvas-wrap{height:300px}
+  .dash-body{flex-direction:column}
+  .dash-sidebar{width:100%}
+}
+</style>
 </head>
 <body>
 
-<div class="glow"></div>
-<div class="glow2"></div>
+<div class="glow-top"></div>
+<div class="glow-bot"></div>
 
-<!-- ===== NAVBAR ===== -->
-<nav>
-    <div class="logo">
-        <div class="logo-icon">🛡</div>
-        <div class="logo-text">
-            <span>HITH</span>
-            <span>THREAT HUNT</span>
-        </div>
+<!-- ==================== NAVBAR ==================== -->
+<nav id="navbar">
+  <a href="#" class="logo">
+    <div class="logo-icon">🛡</div>
+    <div class="logo-text-wrap">
+      <span class="logo-name">HITH</span>
+      <span class="logo-sub">THREAT HUNT</span>
     </div>
-    <ul class="nav-links">
-        <li><a href="#" class="active">Home</a></li>
-        <li><a href="#">Viranetra</a></li>
-        <li><a href="#">Services</a></li>
-        <li><a href="#">Solutions</a></li>
-        <li><a href="#">Industries</a></li>
-        <li><a href="#">Research</a></li>
-        <li><a href="#">Company</a></li>
-        <li><a href="#">Contact</a></li>
-    </ul>
-    <button class="nav-btn">Request Assessment →</button>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" class="active">Home</a></li>
+    <li><a href="#viranetra">Viranetra</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#map">Solutions</a></li>
+    <li><a href="#leadership">Company</a></li>
+    <li><a href="#knowledge">Research</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta">Request Assessment →</button>
 </nav>
 
-<!-- ===== HERO ===== -->
-<section class="hero">
-    <div class="hero-badge">CYBER DEFENSE AT THE SPEED OF INTELLIGENCE</div>
-    <h1>Hunt threats before they become breaches.</h1>
-    <p>Advanced threat hunting, penetration testing, SOC operations, cloud security, incident response, digital forensics, and AI-powered security operations — unified inside <strong>Viranetra.</strong></p>
-    <div class="hero-buttons">
-        <a href="#" class="btn-light">Request Assessment →</a>
-        <a href="#" class="btn-dark">Explore Viranetra →</a>
-    </div>
+<!-- ==================== HERO ==================== -->
+<section class="hero section-wrap">
+  <div class="hero-badge reveal">
+    <span class="hero-badge-dot"></span>
+    CYBER DEFENSE AT THE SPEED OF INTELLIGENCE
+  </div>
+  <h1 class="reveal" style="transition-delay:.1s">Hunt threats before<br>they become breaches.</h1>
+  <p class="hero-desc reveal" style="transition-delay:.2s">
+    Advanced threat hunting, penetration testing, SOC operations, cloud security,
+    incident response, digital forensics, and AI-powered security operations —
+    unified inside <strong>Viranetra.</strong>
+  </p>
+  <div class="hero-btns reveal" style="transition-delay:.3s">
+    <a href="#contact" class="btn-primary">Request Assessment →</a>
+    <a href="#viranetra" class="btn-secondary">Explore Viranetra →</a>
+  </div>
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    <span>SCROLL</span>
+  </div>
 </section>
 
-<!-- ===== MEET VIRANETRA ===== -->
-<section class="viranetra-section">
-    <div class="section-label">THE PLATFORM</div>
-    <h2>Meet <span>Viranetra</span></h2>
-    <p>A unified cyber defense platform — telemetry, intelligence, detection, and response in one operator-grade console.</p>
+<!-- ==================== MEET VIRANETRA ==================== -->
+<section class="viranetra-section section-wrap" id="viranetra">
+  <div class="section-label reveal">THE PLATFORM</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">Meet <span>Viranetra</span></h2>
+  <p class="section-desc reveal" style="transition-delay:.15s">
+    A unified cyber defense platform — telemetry, intelligence, detection, and response in one operator-grade console.
+  </p>
 
-    <div class="dashboard-window">
-        <div class="window-header">
-            <div class="window-dots">
-                <div class="dot dot-red"></div>
-                <div class="dot dot-yellow"></div>
-                <div class="dot dot-green"></div>
-            </div>
-            <div class="window-title">viranetra.hith.io / soc / overview</div>
-            <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-        </div>
-        <div class="dashboard-content">
-            <div class="dash-sidebar">
-                <ul>
-                    <li class="active">Overview</li>
-                    <li>Threats</li>
-                    <li>Assets</li>
-                    <li>Vulnerabilities</li>
-                    <li>Compliance</li>
-                    <li>Investigations</li>
-                    <li>Reports</li>
-                </ul>
-            </div>
-            <div class="dash-main">
-                <div class="stats-row">
-                    <div class="posture-card">
-                        <div class="circle-gauge"><span>87</span></div>
-                        <div class="posture-info">
-                            <div style="font-size:10px;color:#8899aa;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">SECURITY POSTURE</div>
-                            <div style="font-size:11px;color:#8899aa">/100</div>
-                            <div class="posture-trend">↗ +4.2 wk</div>
-                            <div class="posture-sub">Above peer avg.</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">ACTIVE THREATS <span>⚠️</span></div>
-                        <div class="stat-value">1,284</div>
-                        <div class="stat-bar"></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">CRITICAL ALERTS <span style="color:#ff4444">🛡</span></div>
-                        <div class="stat-value">37</div>
-                        <div class="stat-bar"></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">ASSETS MONITORED</div>
-                        <div class="stat-value">48,927</div>
-                        <div class="stat-bar"></div>
-                    </div>
-                </div>
-
-                <div class="dash-bottom">
-                    <div class="timeline-card">
-                        <h4>Detection Timeline · last 24h</h4>
-                        <p>Events vs. Blocked</p>
-                        <canvas id="timelineChart" height="120"></canvas>
-                    </div>
-                    <div class="threat-feed">
-                        <h4>Threat Intelligence Feed <span style="color:#00d4ff;font-size:14px">🌐</span></h4>
-                        <div class="feed-item critical">
-                            <div class="feed-title">Lateral movement detected · prod-db-04</div>
-                            <div class="feed-meta">CRITICAL · 12S AGO</div>
-                        </div>
-                        <div class="feed-item high">
-                            <div class="feed-title">Anomalous OAuth grant · M365 tenant</div>
-                            <div class="feed-meta">HIGH · 47S AGO</div>
-                        </div>
-                        <div class="feed-item medium">
-                            <div class="feed-title">Brute-force on VPN gateway (218 attempts)</div>
-                            <div class="feed-meta">MEDIUM · 1M AGO</div>
-                        </div>
-                        <div class="feed-item low">
-                            <div class="feed-title">New asset discovered: 10.42.8.91</div>
-                            <div class="feed-meta">LOW · 2M AGO</div>
-                        </div>
-                        <div class="feed-item high">
-                            <div class="feed-title">Suspicious PowerShell — base64 payload</div>
-                            <div class="feed-meta">HIGH · 3M AGO</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="padding: 0 20px 20px 20px;">
-            <div class="bottom-stats">
-                <div class="bottom-stat-card">
-                    <div class="bsc-label">ATTACK SURFACE <span>🔗</span></div>
-                    <div class="bsc-value">412</div>
-                    <div class="bsc-sub">exposed assets</div>
-                </div>
-                <div class="bottom-stat-card">
-                    <div class="bsc-label">CLOUD WORKLOADS ☁</div>
-                    <div class="bsc-value">8,201</div>
-                    <div class="bsc-sub">across AWS / Azure / GCP</div>
-                </div>
-                <div class="bottom-stat-card">
-                    <div class="bsc-label">MTTR 〜</div>
-                    <div class="bsc-value">4.2m</div>
-                    <div class="bsc-sub">mean time to respond</div>
-                </div>
-                <div class="bottom-stat-card">
-                    <div class="bsc-label">EXEC RISK INDEX ↗</div>
-                    <div class="bsc-value" style="font-size:22px;font-weight:800">Low</div>
-                    <div class="bsc-sub">down from Moderate</div>
-                </div>
-            </div>
-        </div>
+  <div class="dash-window reveal" style="transition-delay:.2s">
+    <div class="dash-titlebar">
+      <div class="win-dots">
+        <div class="wd wd-r"></div>
+        <div class="wd wd-y"></div>
+        <div class="wd wd-g"></div>
+      </div>
+      <div class="win-path">viranetra.hith.io / soc / overview</div>
+      <div class="win-live"><div class="live-pulse"></div>LIVE</div>
     </div>
+    <div class="dash-body">
+      <div class="dash-sidebar">
+        <ul>
+          <li class="active">Overview</li>
+          <li>Threats</li>
+          <li>Assets</li>
+          <li>Vulnerabilities</li>
+          <li>Compliance</li>
+          <li>Investigations</li>
+          <li>Reports</li>
+        </ul>
+      </div>
+      <div class="dash-main">
+        <div class="stats-row">
+          <div class="posture-card">
+            <div class="gauge-wrap">
+              <svg class="gauge-svg" viewBox="0 0 84 84">
+                <circle class="gauge-bg" cx="42" cy="42" r="35"/>
+                <circle class="gauge-fill" id="gaugeFill" cx="42" cy="42" r="35"/>
+              </svg>
+              <div class="gauge-num">
+                <span class="counter" data-target="87" id="gaugeNum">0</span>
+                <span>/100</span>
+              </div>
+            </div>
+            <div class="posture-info">
+              <div class="posture-lbl">SECURITY POSTURE</div>
+              <div class="posture-trend">↗ +4.2 wk</div>
+              <div class="posture-sub">Above peer avg.</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">ACTIVE THREATS <span class="sc-icon">⚠</span></div>
+            <div class="sc-value counter" data-target="1284">0</div>
+            <div class="sc-bar"></div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">CRITICAL ALERTS <span class="sc-icon" style="color:var(--red)">🛡</span></div>
+            <div class="sc-value counter" data-target="37">0</div>
+            <div class="sc-bar" style="background:linear-gradient(90deg,var(--red),transparent)"></div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">ASSETS MONITORED</div>
+            <div class="sc-value counter" data-target="48927">0</div>
+            <div class="sc-bar"></div>
+          </div>
+        </div>
+        <div class="dash-bottom">
+          <div class="mini-card">
+            <h4>Detection Timeline · last 24h</h4>
+            <div class="mc-sub">Events vs. Blocked</div>
+            <div class="mc-legend">
+              <div class="mc-legend-item"><div class="mc-legend-dot" style="background:var(--cyan)"></div>Events</div>
+              <div class="mc-legend-item"><div class="mc-legend-dot" style="background:#4488ff"></div>Blocked</div>
+            </div>
+            <canvas id="tlChart" height="120"></canvas>
+          </div>
+          <div class="feed-card">
+            <h4>Threat Intelligence Feed <span style="color:var(--cyan);font-size:14px">🌐</span></h4>
+            <div class="feed-item">
+              <div class="fi-dot crit"></div>
+              <div>
+                <div class="fi-title">Lateral movement detected · prod-db-04</div>
+                <div class="fi-meta crit">CRITICAL · 12S AGO</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="fi-dot high"></div>
+              <div>
+                <div class="fi-title">Anomalous OAuth grant · M365 tenant</div>
+                <div class="fi-meta high">HIGH · 47S AGO</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="fi-dot med"></div>
+              <div>
+                <div class="fi-title">Brute-force on VPN gateway (218 attempts)</div>
+                <div class="fi-meta med">MEDIUM · 1M AGO</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="fi-dot low"></div>
+              <div>
+                <div class="fi-title">New asset discovered: 10.42.8.91</div>
+                <div class="fi-meta low">LOW · 2M AGO</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="fi-dot high"></div>
+              <div>
+                <div class="fi-title">Suspicious PowerShell — base64 payload</div>
+                <div class="fi-meta high">HIGH · 3M AGO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bstats">
+      <div class="bs-card">
+        <div class="bs-lbl">ATTACK SURFACE <span>🔗</span></div>
+        <div class="bs-val counter" data-target="412">0</div>
+        <div class="bs-sub">exposed assets</div>
+      </div>
+      <div class="bs-card">
+        <div class="bs-lbl">CLOUD WORKLOADS <span>☁</span></div>
+        <div class="bs-val counter" data-target="8201">0</div>
+        <div class="bs-sub">across AWS / Azure / GCP</div>
+      </div>
+      <div class="bs-card">
+        <div class="bs-lbl">MTTR</div>
+        <div class="bs-val">4.2m</div>
+        <div class="bs-sub">mean time to respond</div>
+      </div>
+      <div class="bs-card">
+        <div class="bs-lbl">EXEC RISK INDEX <span>↗</span></div>
+        <div class="bs-val" style="font-size:20px">Low</div>
+        <div class="bs-sub">down from Moderate</div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== FEATURES GRID ===== -->
-<section class="features-section">
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">🧠</div>
-            <h3>Threat Intelligence</h3>
-            <p>Curated feeds from 60+ sources, mapped to MITRE ATT&CK.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">👁</div>
-            <h3>Dark Web Monitoring</h3>
-            <p>Continuous scanning for leaked credentials, IP, and PII.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🛡</div>
-            <h3>Vulnerability Management</h3>
-            <p>Prioritized by exploitability, business impact, and EPSS.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🔗</div>
-            <h3>Asset Discovery</h3>
-            <p>Agentless mapping of cloud, on-prem, and shadow IT.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">📈</div>
-            <h3>Risk Scoring</h3>
-            <p>Quantitative cyber risk in $ — ready for the board.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">📋</div>
-            <h3>Compliance Monitoring</h3>
-            <p>Live posture against NIST, ISO 27001, SOC 2, PCI.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>Executive Reporting</h3>
-            <p>Auto-generated CISO reports and risk narratives.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🤖</div>
-            <h3>AI Security Assistant</h3>
-            <p>Investigate, summarize, and respond in natural language.</p>
-        </div>
+<!-- ==================== FEATURES ==================== -->
+<section class="features-section section-wrap">
+  <div class="section-label reveal">PLATFORM CAPABILITIES</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">Everything in <span>one console.</span></h2>
+  <div class="features-grid">
+    <div class="feat-card reveal" style="transition-delay:.05s">
+      <div class="feat-icon">🧠</div>
+      <h3>Threat Intelligence</h3>
+      <p>Curated feeds from 60+ sources, mapped to MITRE ATT&CK.</p>
     </div>
+    <div class="feat-card reveal" style="transition-delay:.1s">
+      <div class="feat-icon">👁</div>
+      <h3>Dark Web Monitoring</h3>
+      <p>Continuous scanning for leaked credentials, IP, and PII.</p>
+    </div>
+    <div class="feat-card reveal" style="transition-delay:.15s">
+      <div class="feat-icon">🛡</div>
+      <h3>Vulnerability Management</h3>
+      <p>Prioritized by exploitability, business impact, and EPSS.</p>
+    </div>
+    <div class="feat-card reveal" style="transition-delay:.2s">
+      <div class="feat-icon">🔗</div>
+      <h3>Asset Discovery</h3>
+      <p>Agentless mapping of cloud, on-prem, and shadow IT.</p>
+    </div>
+    <div class="feat-card reveal" style="transition-delay:.25s">
+      <div class="feat-icon">📈</div>
+      <h3>Risk Scoring</h3>
+      <p>Quantitative cyber risk in $ — ready for the board.</p>
+    </div>
+    <div class="feat-card reveal" style="transition-delay:.3s">
+      <div class="feat-icon">📋</div>
+      <h3>Compliance Monitoring</h3>
+      <p>Live posture against NIST, ISO 27001, SOC 2, PCI.</p>
+    </div>
+    <div class="feat-card reveal" style="transition-delay:.35s">
+      <div class="feat-icon">📊</div>
+      <h3>Executive Reporting</h3>
+      <p>Auto-generated CISO reports and risk narratives.</p>
+    </div>
+    <div class="feat-card reveal" style="transition-delay:.4s">
+      <div class="feat-icon">🤖</div>
+      <h3>AI Security Assistant</h3>
+      <p>Investigate, summarize, and respond in natural language.</p>
+    </div>
+  </div>
 </section>
 
-<!-- ===== THREAT COMMAND CENTER ===== -->
-<section class="threat-center">
-    <div class="threat-center-header">
+<!-- ==================== LIVE ATTACK MAP ==================== -->
+<section class="attack-map-section section-wrap" id="map">
+  <div class="attack-map-header">
+    <div>
+      <div class="section-label reveal">THREAT COMMAND CENTER</div>
+      <h2 class="section-title reveal" style="transition-delay:.1s">Global threat activity, <span>live.</span></h2>
+      <p class="section-desc reveal" style="transition-delay:.15s">
+        Aggregated telemetry from the Viranetra fleet — anonymized and streamed in real time across regions, sectors, and ATT&CK techniques.
+      </p>
+    </div>
+    <div class="soc-online reveal" style="transition-delay:.2s">
+      <div class="soc-online-dot"></div>
+      SOC · tier-3 analysts on shift
+    </div>
+  </div>
+
+  <div class="map-outer reveal" style="transition-delay:.25s">
+    <div class="map-topbar">
+      <div class="map-topbar-left">
+        <div class="map-logo-sm">🛡</div>
         <div>
-            <div class="section-label">THREAT COMMAND CENTER</div>
-            <h2>Global threat activity, <span>live.</span></h2>
-            <p>Aggregated telemetry from the Viranetra fleet — anonymized and streamed in real time across regions, sectors, and ATT&CK techniques.</p>
+          <div class="map-title-sm">LIVE ATTACK MAP</div>
+          <div class="map-sub-sm">Real-time attack origin &amp; distribution</div>
         </div>
-        <div class="soc-badge">
-            <div class="soc-dot"></div>
-            SOC · tier-3 analysts on shift
-        </div>
+      </div>
+      <div class="map-filter">All Attacks ▾</div>
     </div>
 
-    <div class="threat-stats">
-        <div class="threat-stat">
-            <div class="ts-label">ACTIVE THREATS</div>
-            <div class="ts-value orange">12,847</div>
-            <div class="ts-sub">+318 last hr</div>
+    <div class="map-canvas-wrap">
+      <canvas id="attackMapCanvas"></canvas>
+      <div class="map-tooltip" id="mapTooltip">
+        <div class="tooltip-title" id="ttTitle">🇺🇸 United States</div>
+        <div class="tooltip-row">
+          <span class="tooltip-key">Attack Type</span>
+          <span class="tooltip-val red" id="ttType">Ransomware</span>
         </div>
-        <div class="threat-stat">
-            <div class="ts-label">CRITICAL ALERTS</div>
-            <div class="ts-value red">47</div>
-            <div class="ts-sub">↓ 12% wk</div>
+        <div class="tooltip-row">
+          <span class="tooltip-key">Severity</span>
+          <span class="tooltip-val orange" id="ttSev">High</span>
         </div>
-        <div class="threat-stat">
-            <div class="ts-label">SECURITY EVENTS</div>
-            <div class="ts-value cyan">4.2M</div>
-            <div class="ts-sub">today</div>
+        <div class="tooltip-row">
+          <span class="tooltip-key">Last Seen</span>
+          <span class="tooltip-val green" id="ttTime">2 sec ago</span>
         </div>
-        <div class="threat-stat">
-            <div class="ts-label">AVG RESPONSE</div>
-            <div class="ts-value green">4m 12s</div>
-            <div class="ts-sub">MTTR · last 24h</div>
-        </div>
+      </div>
     </div>
 
-    <div class="map-row">
-        <div class="map-card">
-            <div class="map-card-header">
-                <h4>Geographic Attack Map</h4>
-                <span class="map-events">611 events</span>
-            </div>
-            <p>Origin of attempted intrusions · last 60min</p>
-            <div class="dot-map">
-                <div class="dot-map-grid"></div>
-                <div class="attack-point" style="left:22%;top:40%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">United States</div>
-                </div>
-                <div class="attack-point" style="left:46%;top:28%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">United Kingdom</div>
-                </div>
-                <div class="attack-point" style="left:50%;top:32%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">Germany</div>
-                </div>
-                <div class="attack-point" style="left:45%;top:55%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">India</div>
-                </div>
-                <div class="attack-point" style="left:72%;top:35%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">Japan</div>
-                </div>
-                <div class="attack-point" style="left:65%;top:55%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">Singapore</div>
-                </div>
-                <div class="attack-point" style="left:30%;top:62%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">Brazil</div>
-                </div>
-                <div class="attack-point" style="left:75%;top:68%">
-                    <div class="ap-dot"></div>
-                    <div class="ap-label">Australia</div>
-                </div>
-            </div>
+    <div class="map-bottom">
+      <div class="intensity-legend">
+        <span>INTENSITY</span>
+        <span style="font-size:9px;color:var(--muted)">LOW</span>
+        <div class="int-dots">
+          <div class="int-dot" style="background:#4488ff"></div>
+          <div class="int-dot" style="background:#ffdd00"></div>
+          <div class="int-dot" style="background:#ffaa00"></div>
+          <div class="int-dot" style="background:#ff6600"></div>
+          <div class="int-dot" style="background:#ff2200"></div>
         </div>
-
-        <div class="donut-card">
-            <h4>Threat Categories</h4>
-            <p>Distribution · 24h</p>
-            <div class="donut-container">
-                <canvas id="donutChart" width="160" height="160"></canvas>
-            </div>
-            <div class="legend-item">
-                <div class="legend-left"><div class="legend-dot" style="background:#ff4444"></div> Ransomware</div>
-                <div class="legend-count">412</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-left"><div class="legend-dot" style="background:#ffaa00"></div> Phishing</div>
-                <div class="legend-count">1284</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-left"><div class="legend-dot" style="background:#4488ff"></div> Malware</div>
-                <div class="legend-count">904</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-left"><div class="legend-dot" style="background:#00d4ff"></div> DDoS</div>
-                <div class="legend-count">218</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-left"><div class="legend-dot" style="background:#00ff88"></div> Insider</div>
-                <div class="legend-count">67</div>
-            </div>
+        <span style="font-size:9px;color:var(--muted)">HIGH</span>
+      </div>
+      <div class="live-feed-ticker" id="tickerWrap">
+        <div class="ticker-item">
+          <div class="t-dot" style="background:var(--red)"></div>
+          <span class="t-type r">RANSOMWARE</span>
+          <span>United States</span>
+          <span style="color:var(--red);font-size:10px">High</span>
         </div>
+        <div class="ticker-item">
+          <div class="t-dot" style="background:var(--yellow)"></div>
+          <span class="t-type y">PHISHING</span>
+          <span>India</span>
+          <span style="color:var(--yellow);font-size:10px">Medium</span>
+        </div>
+        <div class="ticker-item">
+          <div class="t-dot" style="background:var(--red)"></div>
+          <span class="t-type r">MALWARE</span>
+          <span>Germany</span>
+          <span style="color:var(--red);font-size:10px">High</span>
+        </div>
+        <div class="ticker-item">
+          <div class="t-dot" style="background:var(--orange)"></div>
+          <span class="t-type o">DDoS</span>
+          <span>Singapore</span>
+          <span style="color:var(--orange);font-size:10px">Medium</span>
+        </div>
+      </div>
+      <div class="live-threats-box">
+        <div class="lt-label">LIVE THREATS</div>
+        <div class="lt-num counter" data-target="12847" id="ltNum">0</div>
+        <div class="lt-sub">Last 24h</div>
+      </div>
+      <div class="view-all">View all →</div>
     </div>
-
-    <div class="bottom-row">
-        <div class="timeline-card">
-            <h4>Detection Timeline · last 12h</h4>
-            <p>Severity-weighted detections per hour</p>
-            <canvas id="barChart" height="140"></canvas>
-        </div>
-        <div class="activity-card">
-            <div class="activity-card-header">
-                <h4>Live Activity Stream</h4>
-                <span class="tail-badge">tail -f</span>
-            </div>
-            <div class="activity-sub">soc.viranetra.io / tap</div>
-            <div class="activity-line">
-                <span class="al-num">88345</span>
-                <span class="al-action block">BLOCK</span>
-                <span class="al-text">phishing.cred-harvest <span class="al-dim">AS14618 → corp-mail-01</span></span>
-            </div>
-            <div class="activity-line">
-                <span class="al-num">88342</span>
-                <span class="al-action detect">DETECT</span>
-                <span class="al-text">lateral.movement <span class="al-dim">win-srv-03 → win-dc-01 (445)</span></span>
-            </div>
-            <div class="activity-line">
-                <span class="al-num">88339</span>
-                <span class="al-action isolate">ISOLATE</span>
-                <span class="al-text">endpoint.suspicious <span class="al-dim">mac-design-21 — CryptoMiner</span></span>
-            </div>
-            <div class="activity-line">
-                <span class="al-num">88336</span>
-                <span class="al-action block">BLOCK</span>
-                <span class="al-text">c2.beacon <span class="al-dim">10.0.4.18 → 185.220.101.x (Tor)</span></span>
-            </div>
-            <div class="activity-line" style="opacity:0.4">
-                <span class="al-num">88333</span>
-                <span class="al-action detect">TRIAGE</span>
-                <span class="al-text">anomaly.iam <span class="al-dim">role-assumed from new geo...</span></span>
-            </div>
-        </div>
-    </div>
+  </div>
 </section>
 
-<!-- ===== SERVICES SECTION ===== -->
-<section class="services-section">
-    <div class="section-label">SERVICES</div>
-    <h2>Operator-grade security, <span>end to end.</span></h2>
-    <p>Eight specialized practices. One accountable team. Outcomes measured in dwell time, not deliverables.</p>
-
-    <div class="services-grid">
-        <div class="service-card">
-            <div class="service-card-top">
-                <div class="service-icon">🎯</div>
-                <div class="arrow-link">↗</div>
-            </div>
-            <h3>Threat Hunting</h3>
-            <p>Hypothesis-driven hunts across endpoints, identity, network, and cloud — informed by MITRE ATT&CK.</p>
-            <div class="service-section-title">KEY DELIVERABLES</div>
-            <ul class="service-list">
-                <li>Hunt playbooks</li>
-                <li>ATT&CK coverage map</li>
-                <li>Indicator-of-attack catalog</li>
-            </ul>
-            <div class="service-section-title">BUSINESS IMPACT</div>
-            <div class="service-impact">Find adversaries living off the land before payloads detonate.</div>
-        </div>
-        <div class="service-card">
-            <div class="service-card-top">
-                <div class="service-icon">🐛</div>
-                <div class="arrow-link">↗</div>
-            </div>
-            <h3>Penetration Testing</h3>
-            <p>Black, grey, and white-box engagements aligned with PTES and OWASP — including red team scenarios.</p>
-            <div class="service-section-title">KEY DELIVERABLES</div>
-            <ul class="service-list">
-                <li>Executive + technical report</li>
-                <li>Attack path graph</li>
-                <li>Re-test certification</li>
-            </ul>
-            <div class="service-section-title">BUSINESS IMPACT</div>
-            <div class="service-impact">Prove control efficacy with reproducible, ethical exploitation.</div>
-        </div>
-        <div class="service-card">
-            <div class="service-card-top">
-                <div class="service-icon">🎧</div>
-                <div class="arrow-link">↗</div>
-            </div>
-            <h3>SOC as a Service</h3>
-            <p>24/7/365 monitoring with tier-1 through tier-3 analysts. SLA-bound triage, containment, and escalation.</p>
-            <div class="service-section-title">KEY DELIVERABLES</div>
-            <ul class="service-list">
-                <li>MDR runbooks</li>
-                <li>Daily SOC digest</li>
-                <li>Quarterly tuning</li>
-            </ul>
-            <div class="service-section-title">BUSINESS IMPACT</div>
-            <div class="service-impact">Mean-time-to-respond under 8 minutes for critical events.</div>
-        </div>
-        <div class="service-card">
-            <div class="service-card-top">
-                <div class="service-icon">☁</div>
-                <div class="arrow-link">↗</div>
-            </div>
-            <h3>Cloud Security</h3>
-            <p>AWS, Azure, GCP, and Kubernetes hardening. CSPM, CIEM, and workload identity governance.</p>
-            <div class="service-section-title">KEY DELIVERABLES</div>
-            <ul class="service-list">
-                <li>Cloud benchmark report</li>
-                <li>IaC guardrails</li>
-                <li>Drift detection</li>
-            </ul>
-            <div class="service-section-title">BUSINESS IMPACT</div>
-            <div class="service-impact">Eliminate misconfiguration — the most common cause of cloud breaches.</div>
-        </div>
+<!-- ==================== TCC STATS + CHARTS ==================== -->
+<section class="tcc-section section-wrap">
+  <div class="tcc-stats">
+    <div class="ts-card reveal" style="transition-delay:.05s">
+      <div class="ts-lbl">ACTIVE THREATS</div>
+      <div class="ts-val orange counter" data-target="12847">0</div>
+      <div class="ts-sub">+318 last hr</div>
     </div>
+    <div class="ts-card reveal" style="transition-delay:.1s">
+      <div class="ts-lbl">CRITICAL ALERTS</div>
+      <div class="ts-val red counter" data-target="47">0</div>
+      <div class="ts-sub">↓ 12% wk</div>
+    </div>
+    <div class="ts-card reveal" style="transition-delay:.15s">
+      <div class="ts-lbl">SECURITY EVENTS</div>
+      <div class="ts-val cyan">4.2M</div>
+      <div class="ts-sub">today</div>
+    </div>
+    <div class="ts-card reveal" style="transition-delay:.2s">
+      <div class="ts-lbl">AVG RESPONSE</div>
+      <div class="ts-val green">4m 12s</div>
+      <div class="ts-sub">MTTR · last 24h</div>
+    </div>
+  </div>
+  <div class="tcc-bottom">
+    <div class="tcc-chart-card reveal">
+      <h4>Detection Timeline · last 12h</h4>
+      <div class="cc-sub">Severity-weighted detections per hour</div>
+      <canvas id="barChart" height="160"></canvas>
+    </div>
+    <div class="activity-stream reveal" style="transition-delay:.1s">
+      <div class="as-header">
+        <h4>Live Activity Stream</h4>
+        <span class="as-tail">tail -f</span>
+      </div>
+      <div class="as-path">soc.viranetra.io / tap</div>
+      <div id="activityFeed">
+        <div class="as-line">
+          <span class="as-num">88345</span>
+          <span class="as-badge blk">BLOCK</span>
+          <span class="as-text">phishing.cred-harvest <span class="as-dim">AS14618 → corp-mail-01</span></span>
+        </div>
+        <div class="as-line">
+          <span class="as-num">88342</span>
+          <span class="as-badge det">DETECT</span>
+          <span class="as-text">lateral.movement <span class="as-dim">win-srv-03 → win-dc-01 (445)</span></span>
+        </div>
+        <div class="as-line">
+          <span class="as-num">88339</span>
+          <span class="as-badge iso">ISOLATE</span>
+          <span class="as-text">endpoint.suspicious <span class="as-dim">mac-design-21 — CryptoMiner</span></span>
+        </div>
+        <div class="as-line">
+          <span class="as-num">88336</span>
+          <span class="as-badge blk">BLOCK</span>
+          <span class="as-text">c2.beacon <span class="as-dim">10.0.4.18 → 185.220.101.x (Tor)</span></span>
+        </div>
+        <div class="as-line" style="opacity:.45">
+          <span class="as-num">88333</span>
+          <span class="as-badge tri">TRIAGE</span>
+          <span class="as-text">anomaly.iam <span class="as-dim">role-assumed from new geo...</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== METHODOLOGY SECTION ===== -->
-<section class="methodology-section">
-    <div class="section-label">METHODOLOGY</div>
-    <h2>How we <span>hunt threats.</span></h2>
-    <p>A continuous loop — not a linear project. Each step feeds the next, and informs the model.</p>
-
-    <div class="methodology-steps">
-        <div class="step-card">
-            <div class="step-card-top">
-                <div class="step-icon">🗄</div>
-                <div class="step-num">01</div>
-            </div>
-            <h4>Collect Telemetry</h4>
-            <p>EDR, NDR, identity, cloud, SaaS, OT.</p>
-            <div class="step-arrow">→</div>
-        </div>
-        <div class="step-card">
-            <div class="step-card-top">
-                <div class="step-icon">🌐</div>
-                <div class="step-num">02</div>
-            </div>
-            <h4>Threat Intelligence</h4>
-            <p>60+ feeds, dark web, ISAC, internal IOCs.</p>
-            <div class="step-arrow">→</div>
-        </div>
-        <div class="step-card">
-            <div class="step-card-top">
-                <div class="step-icon">🧠</div>
-                <div class="step-num">03</div>
-            </div>
-            <h4>Behavior Analytics</h4>
-            <p>UEBA + ML baselining of normal.</p>
-            <div class="step-arrow">→</div>
-        </div>
-        <div class="step-card">
-            <div class="step-card-top">
-                <div class="step-icon">🔍</div>
-                <div class="step-num">04</div>
-            </div>
-            <h4>Threat Detection</h4>
-            <p>ATT&CK-aligned detections at scale.</p>
-            <div class="step-arrow">→</div>
-        </div>
-        <div class="step-card">
-            <div class="step-card-top">
-                <div class="step-icon">🔗</div>
-                <div class="step-num">05</div>
-            </div>
-            <h4>Investigation</h4>
-            <p>Graph-based correlation across surfaces.</p>
-            <div class="step-arrow">→</div>
-        </div>
-        <div class="step-card">
-            <div class="step-card-top">
-                <div class="step-icon">📈</div>
-                <div class="step-num">06</div>
-            </div>
-            <h4>Response</h4>
-            <p>Contain, isolate, revoke, rotate.</p>
-            <div class="step-arrow">→</div>
-        </div>
-        <div class="step-card">
-            <div class="step-card-top">
-                <div class="step-icon">🛡</div>
-                <div class="step-num">07</div>
-            </div>
-            <h4>Remediation</h4>
-            <p>Harden, patch, tune, validate.</p>
-        </div>
+<!-- ==================== SERVICES ==================== -->
+<section class="services-section section-wrap" id="services">
+  <div class="section-label reveal">SERVICES</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">Operator-grade security, <span>end to end.</span></h2>
+  <p class="section-desc reveal" style="transition-delay:.15s">Eight specialized practices. One accountable team. Outcomes measured in dwell time, not deliverables.</p>
+  <div class="services-grid">
+    <div class="svc-card reveal" style="transition-delay:.05s">
+      <div class="svc-top"><div class="svc-icon">🎯</div><span class="svc-arrow">↗</span></div>
+      <h3>Threat Hunting</h3>
+      <p>Hypothesis-driven hunts across endpoints, identity, network, and cloud — informed by MITRE ATT&CK.</p>
+      <div class="svc-section-lbl">KEY DELIVERABLES</div>
+      <ul class="svc-list"><li>Hunt playbooks</li><li>ATT&CK coverage map</li><li>Indicator-of-attack catalog</li></ul>
+      <div class="svc-section-lbl">BUSINESS IMPACT</div>
+      <div class="svc-impact">Find adversaries living off the land before payloads detonate.</div>
     </div>
+    <div class="svc-card reveal" style="transition-delay:.1s">
+      <div class="svc-top"><div class="svc-icon">🐛</div><span class="svc-arrow">↗</span></div>
+      <h3>Penetration Testing</h3>
+      <p>Black, grey, and white-box engagements aligned with PTES and OWASP — including red team scenarios.</p>
+      <div class="svc-section-lbl">KEY DELIVERABLES</div>
+      <ul class="svc-list"><li>Executive + technical report</li><li>Attack path graph</li><li>Re-test certification</li></ul>
+      <div class="svc-section-lbl">BUSINESS IMPACT</div>
+      <div class="svc-impact">Prove control efficacy with reproducible, ethical exploitation.</div>
+    </div>
+    <div class="svc-card reveal" style="transition-delay:.15s">
+      <div class="svc-top"><div class="svc-icon">🎧</div><span class="svc-arrow">↗</span></div>
+      <h3>SOC as a Service</h3>
+      <p>24/7/365 monitoring with tier-1 through tier-3 analysts. SLA-bound triage, containment, and escalation.</p>
+      <div class="svc-section-lbl">KEY DELIVERABLES</div>
+      <ul class="svc-list"><li>MDR runbooks</li><li>Daily SOC digest</li><li>Quarterly tuning</li></ul>
+      <div class="svc-section-lbl">BUSINESS IMPACT</div>
+      <div class="svc-impact">Mean-time-to-respond under 8 minutes for critical events.</div>
+    </div>
+    <div class="svc-card reveal" style="transition-delay:.2s">
+      <div class="svc-top"><div class="svc-icon">☁</div><span class="svc-arrow">↗</span></div>
+      <h3>Cloud Security</h3>
+      <p>AWS, Azure, GCP, and Kubernetes hardening. CSPM, CIEM, and workload identity governance.</p>
+      <div class="svc-section-lbl">KEY DELIVERABLES</div>
+      <ul class="svc-list"><li>Cloud benchmark report</li><li>IaC guardrails</li><li>Drift detection</li></ul>
+      <div class="svc-section-lbl">BUSINESS IMPACT</div>
+      <div class="svc-impact">Eliminate misconfiguration — the most common cause of cloud breaches.</div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== WHY HITH SECTION ===== -->
-<section class="why-section">
-    <div class="section-label">THE DIFFERENCE</div>
-    <h2>Why <span>HITH.</span></h2>
-    <p>Most vendors sell tools. We deliver outcomes — backed by humans who have lived through breaches.</p>
-
-    <div class="comparison-table">
-        <div class="table-header">
-            <span>CAPABILITY</span>
-            <span>TRADITIONAL VENDORS</span>
-            <span>HITH</span>
-        </div>
-        <div class="table-row">
-            <div class="capability">Proactive threat hunting</div>
-            <div class="vendor-val cross">✕</div>
-            <div class="vendor-val check">✓</div>
-        </div>
-        <div class="table-row">
-            <div class="capability">24/7 tier-3 SOC coverage</div>
-            <div class="vendor-val cross">✕</div>
-            <div class="vendor-val check">✓</div>
-        </div>
-        <div class="table-row">
-            <div class="capability">MITRE ATT&CK-aligned detections</div>
-            <div class="vendor-val partial">Partial</div>
-            <div class="vendor-val check">✓</div>
-        </div>
-        <div class="table-row">
-            <div class="capability">Real-world breach response (1-hr SLA)</div>
-            <div class="vendor-val cross">✕</div>
-            <div class="vendor-val check">✓</div>
-        </div>
-        <div class="table-row">
-            <div class="capability">In-house penetration testers (OSCP/OSEP)</div>
-            <div class="vendor-val cross">✕</div>
-            <div class="vendor-val check">✓</div>
-        </div>
-        <div class="table-row">
-            <div class="capability">Executive-grade risk reporting</div>
-            <div class="vendor-val partial">Generic</div>
-            <div class="vendor-val check">✓</div>
-        </div>
-        <div class="table-row">
-            <div class="capability">Cloud + on-prem + OT coverage</div>
-            <div class="vendor-val partial">Cloud only</div>
-            <div class="vendor-val check">✓</div>
-        </div>
+<!-- ==================== METHODOLOGY ==================== -->
+<section class="methodology-section section-wrap">
+  <div class="section-label reveal">METHODOLOGY</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">How we <span>hunt threats.</span></h2>
+  <p class="section-desc reveal" style="transition-delay:.15s">A continuous loop — not a linear project. Each step feeds the next, and informs the model.</p>
+  <div class="method-steps">
+    <div class="ms-card reveal" style="transition-delay:.05s">
+      <div class="ms-top"><div class="ms-icon">🗄</div><span class="ms-num">01</span></div>
+      <h4>Collect Telemetry</h4><p>EDR, NDR, identity, cloud, SaaS, OT.</p>
     </div>
+    <div class="ms-card reveal" style="transition-delay:.1s">
+      <div class="ms-top"><div class="ms-icon">🌐</div><span class="ms-num">02</span></div>
+      <h4>Threat Intelligence</h4><p>60+ feeds, dark web, ISAC, internal IOCs.</p>
+    </div>
+    <div class="ms-card reveal" style="transition-delay:.15s">
+      <div class="ms-top"><div class="ms-icon">🧠</div><span class="ms-num">03</span></div>
+      <h4>Behavior Analytics</h4><p>UEBA + ML baselining of normal.</p>
+    </div>
+    <div class="ms-card reveal" style="transition-delay:.2s">
+      <div class="ms-top"><div class="ms-icon">🔍</div><span class="ms-num">04</span></div>
+      <h4>Threat Detection</h4><p>ATT&CK-aligned detections at scale.</p>
+    </div>
+    <div class="ms-card reveal" style="transition-delay:.25s">
+      <div class="ms-top"><div class="ms-icon">🔗</div><span class="ms-num">05</span></div>
+      <h4>Investigation</h4><p>Graph-based correlation across surfaces.</p>
+    </div>
+    <div class="ms-card reveal" style="transition-delay:.3s">
+      <div class="ms-top"><div class="ms-icon">⚡</div><span class="ms-num">06</span></div>
+      <h4>Response</h4><p>Contain, isolate, revoke, rotate.</p>
+    </div>
+    <div class="ms-card reveal" style="transition-delay:.35s">
+      <div class="ms-top"><div class="ms-icon">🛡</div><span class="ms-num">07</span></div>
+      <h4>Remediation</h4><p>Harden, patch, tune, validate.</p>
+    </div>
+  </div>
 </section>
 
+<!-- ==================== WHY HITH ==================== -->
+<section class="why-section section-wrap">
+  <div class="section-label reveal">THE DIFFERENCE</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">Why <span>HITH.</span></h2>
+  <p class="section-desc reveal" style="transition-delay:.15s">Most vendors sell tools. We deliver outcomes — backed by humans who have lived through breaches.</p>
+  <div class="compare-table reveal" style="transition-delay:.2s">
+    <div class="ct-head">
+      <span>CAPABILITY</span><span>TRADITIONAL VENDORS</span><span>HITH</span>
+    </div>
+    <div class="ct-row"><div class="ct-cap">Proactive threat hunting</div><div class="ct-x">✕</div><div class="ct-check">✓</div></div>
+    <div class="ct-row"><div class="ct-cap">24/7 tier-3 SOC coverage</div><div class="ct-x">✕</div><div class="ct-check">✓</div></div>
+    <div class="ct-row"><div class="ct-cap">MITRE ATT&CK-aligned detections</div><div class="ct-p">Partial</div><div class="ct-check">✓</div></div>
+    <div class="ct-row"><div class="ct-cap">Real-world breach response (1-hr SLA)</div><div class="ct-x">✕</div><div class="ct-check">✓</div></div>
+    <div class="ct-row"><div class="ct-cap">In-house penetration testers (OSCP/OSEP)</div><div class="ct-x">✕</div><div class="ct-check">✓</div></div>
+    <div class="ct-row"><div class="ct-cap">Executive-grade risk reporting</div><div class="ct-p">Generic</div><div class="ct-check">✓</div></div>
+    <div class="ct-row"><div class="ct-cap">Cloud + on-prem + OT coverage</div><div class="ct-p">Cloud only</div><div class="ct-check">✓</div></div>
+  </div>
+</section>
+
+<!-- ==================== LEADERSHIP ==================== -->
+<section class="leadership-section section-wrap" id="leadership">
+  <div class="section-label reveal">LEADERSHIP</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">Operators, not <span>consultants.</span></h2>
+  <p class="section-desc reveal" style="transition-delay:.15s">Our leadership has carried pagers, run breaches, and shipped detections at planet scale.</p>
+  <div class="leaders-grid">
+    <div class="leader-card reveal" style="transition-delay:.05s">
+      <div class="leader-avatar">
+        <div class="avatar-initials">AM</div>
+        <div class="avatar-certs">
+          <span class="cert-badge">OSCP</span>
+          <span class="cert-badge">OSEP</span>
+          <span class="cert-badge">CISSP</span>
+        </div>
+      </div>
+      <div class="leader-info">
+        <div class="leader-name">Arjun Mehta</div>
+        <div class="leader-role">Founder &amp; CEO</div>
+        <div class="leader-bio">Former offensive security lead. Built red teams at two Fortune 100s.</div>
+        <div class="leader-focus"><strong>FOCUS</strong> · Threat Hunting · Red Team</div>
+      </div>
+    </div>
+    <div class="leader-card reveal" style="transition-delay:.1s">
+      <div class="leader-avatar">
+        <div class="avatar-initials">PR</div>
+        <div class="avatar-certs">
+          <span class="cert-badge">GIAC</span>
+          <span class="cert-badge">GCIH</span>
+          <span class="cert-badge">CISM</span>
+        </div>
+      </div>
+      <div class="leader-info">
+        <div class="leader-name">Priya Raghavan</div>
+        <div class="leader-role">Chief Security Officer</div>
+        <div class="leader-bio">15+ years in SOC operations and incident response across BFSI.</div>
+        <div class="leader-focus"><strong>FOCUS</strong> · IR · SOC · Forensics</div>
+      </div>
+    </div>
+    <div class="leader-card reveal" style="transition-delay:.15s">
+      <div class="leader-avatar">
+        <div class="avatar-initials">DO</div>
+        <div class="avatar-certs">
+          <span class="cert-badge">AWS Sec</span>
+          <span class="cert-badge">CCSP</span>
+          <span class="cert-badge">CKS</span>
+        </div>
+      </div>
+      <div class="leader-info">
+        <div class="leader-name">Daniel Okafor</div>
+        <div class="leader-role">VP Cloud Security</div>
+        <div class="leader-bio">Ex-AWS principal security engineer. Authored multi-cloud guardrails.</div>
+        <div class="leader-focus"><strong>FOCUS</strong> · Cloud · Kubernetes · DevSecOps</div>
+      </div>
+    </div>
+    <div class="leader-card reveal" style="transition-delay:.2s">
+      <div class="leader-avatar">
+        <div class="avatar-initials">SL</div>
+        <div class="avatar-certs">
+          <span class="cert-badge">GCTI</span>
+          <span class="cert-badge">GREM</span>
+          <span class="cert-badge">CISSP</span>
+        </div>
+      </div>
+      <div class="leader-info">
+        <div class="leader-name">Sofia Lindqvist</div>
+        <div class="leader-role">Director, Threat Intelligence</div>
+        <div class="leader-bio">Tracked APT campaigns at a national CERT. Speaker at Black Hat EU.</div>
+        <div class="leader-focus"><strong>FOCUS</strong> · TI · Dark Web · APT Research</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== KNOWLEDGE CENTER ==================== -->
+<section class="knowledge-section section-wrap" id="knowledge">
+  <div class="section-label reveal">KNOWLEDGE CENTER</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">Research from the <span>front lines.</span></h2>
+  <div class="knowledge-grid">
+    <div class="know-card reveal" style="transition-delay:.05s">
+      <div class="know-thumb kc-1">
+        <div class="ktype-badge">THREAT REPORT</div>
+        <div class="kicon">📡</div>
+      </div>
+      <div class="know-body">
+        <h3>Q1 2026 Global Threat Landscape</h3>
+        <div class="kread">32 min read</div>
+      </div>
+    </div>
+    <div class="know-card reveal" style="transition-delay:.1s">
+      <div class="know-thumb kc-2">
+        <div class="ktype-badge">WHITEPAPER</div>
+        <div class="kicon">📄</div>
+      </div>
+      <div class="know-body">
+        <h3>Building an ATT&CK-aligned detection program</h3>
+        <div class="kread">18 min read</div>
+      </div>
+    </div>
+    <div class="know-card reveal" style="transition-delay:.15s">
+      <div class="know-thumb kc-3">
+        <div class="ktype-badge">RESEARCH</div>
+        <div class="kicon">📖</div>
+      </div>
+      <div class="know-body">
+        <h3>Inside APT-Argentum: a 14-month investigation</h3>
+        <div class="kread">27 min read</div>
+      </div>
+    </div>
+    <div class="know-card reveal" style="transition-delay:.2s">
+      <div class="know-thumb kc-4">
+        <div class="ktype-badge">BLOG</div>
+        <div class="kicon">📰</div>
+      </div>
+      <div class="know-body">
+        <h3>Why MTTR matters more than MTTD</h3>
+        <div class="kread">6 min read</div>
+      </div>
+    </div>
+    <div class="know-card reveal" style="transition-delay:.25s">
+      <div class="know-thumb kc-5">
+        <div class="ktype-badge">WEBINAR</div>
+        <div class="kicon">🎙</div>
+      </div>
+      <div class="know-body">
+        <h3>Live: Hunting in Microsoft 365 with KQL</h3>
+        <div class="kread">On-demand</div>
+      </div>
+    </div>
+    <div class="know-card reveal" style="transition-delay:.3s">
+      <div class="know-thumb kc-6">
+        <div class="ktype-badge">THREAT REPORT</div>
+        <div class="kicon">📡</div>
+      </div>
+      <div class="know-body">
+        <h3>Ransomware economics: the new playbook</h3>
+        <div class="kread">14 min read</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CONTACT ==================== -->
+<section class="contact-section section-wrap" id="contact">
+  <div class="section-label reveal">GET IN TOUCH</div>
+  <h2 class="section-title reveal" style="transition-delay:.1s">Ready to strengthen your <span>security posture?</span></h2>
+  <div class="contact-grid">
+    <div class="contact-left reveal-left" style="transition-delay:.2s">
+      <p style="color:var(--muted);font-size:15px;line-height:1.75;margin-bottom:28px">
+        Talk to a senior security engineer within one business day — or call our 24/7 hotline for an active incident.
+      </p>
+      <div class="incident-box">
+        <div class="ib-icon">🚨</div>
+        <div>
+          <div class="ib-title">Active incident? Call now.</div>
+          <div class="ib-sub">24/7/365 emergency response — one-hour engagement SLA.</div>
+          <a href="tel:+18005554484" class="ib-phone">+1 (800) 555-HITH →</a>
+        </div>
+      </div>
+      <div class="contact-cards">
+        <div class="cc-item">
+          <span class="cc-icon">✉</span>
+          <div>
+            <div class="cc-lbl">EMAIL</div>
+            <div class="cc-val">hello@hith.security</div>
+          </div>
+        </div>
+        <div class="cc-item">
+          <span class="cc-icon">📞</span>
+          <div>
+            <div class="cc-lbl">SALES</div>
+            <div class="cc-val">+1 (415) 555-0142</div>
+          </div>
+        </div>
+        <div class="cc-item">
+          <span class="cc-icon">📍</span>
+          <div>
+            <div class="cc-lbl">HQ</div>
+            <div class="cc-val">San Francisco, CA</div>
+          </div>
+        </div>
+        <div class="cc-item">
+          <span class="cc-icon">📍</span>
+          <div>
+            <div class="cc-lbl">EMEA</div>
+            <div class="cc-val">London · Bengaluru · Singapore</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form reveal-right" style="transition-delay:.2s">
+      <div class="cf-title">Request a security assessment</div>
+      <div class="cf-sub">We respond within one business day.</div>
+      <div class="form-row">
+        <div class="form-group"><label>FULL NAME</label><input type="text" placeholder="Jane Doe"/></div>
+        <div class="form-group"><label>WORK EMAIL</label><input type="email" placeholder="jane@acme.com"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>COMPANY</label><input type="text" placeholder="Acme Corp"/></div>
+        <div class="form-group"><label>JOB TITLE</label><input type="text" placeholder="CISO"/></div>
+      </div>
+      <div class="form-group">
+        <label>INTEREST</label>
+        <select>
+          <option>Threat Hunting</option>
+          <option>Penetration Testing</option>
+          <option>SOC as a Service</option>
+          <option>Cloud Security</option>
+          <option>Incident Response</option>
+          <option>Viranetra Platform</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>TELL US ABOUT YOUR ENVIRONMENT</label>
+        <textarea placeholder="Industry, # of employees, cloud providers, current security stack..."></textarea>
+      </div>
+      <button class="submit-btn" onclick="this.textContent='✓ Submitted — We\'ll be in touch!'">Schedule assessment →</button>
+      <div class="form-note">By submitting, you agree to our privacy policy. We never share your data.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <a href="#" class="footer-logo">
+    <div class="logo-icon" style="width:34px;height:34px;font-size:14px">🛡</div>
+    <div class="logo-text-wrap">
+      <span class="logo-name" style="font-size:13px">HITH</span>
+      <span class="logo-sub">THREAT HUNT</span>
+    </div>
+  </a>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Security</a>
+    <a href="#">Careers</a>
+    <a href="#">Blog</a>
+  </div>
+  <div class="footer-copy">© 2026 HITH Security. All rights reserved.</div>
+</footer>
+
+<!-- ==================== SCRIPTS ==================== -->
 <script>
-    // Timeline Chart
-    const tlCtx = document.getElementById('timelineChart').getContext('2d');
-    new Chart(tlCtx, {
-        type: 'line',
-        data: {
-            labels: ['0:00','4:00','8:00','12:00','16:00','20:00'],
-            datasets: [{
-                label: 'Events',
-                data: [180,220,280,180,320,200],
-                borderColor: '#00d4ff',
-                backgroundColor: 'rgba(0,212,255,0.1)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                borderWidth: 2
-            },{
-                label: 'Blocked',
-                data: [120,160,200,130,240,150],
-                borderColor: '#4488ff',
-                backgroundColor: 'rgba(68,136,255,0.08)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } },
-                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } }
-            }
+/* ========== NAVBAR SCROLL ========== */
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>40);
+});
+
+/* ========== SCROLL REVEAL ========== */
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) e.target.classList.add('visible');
+  });
+},{threshold:0.12});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>revealObserver.observe(el));
+
+/* ========== ANIMATED COUNTER ========== */
+function animateCounter(el){
+  const target = parseInt(el.dataset.target);
+  const duration = 1800;
+  const step = target / (duration / 16);
+  let current = 0;
+  const timer = setInterval(()=>{
+    current = Math.min(current + step, target);
+    el.textContent = Math.floor(current).toLocaleString();
+    if(current >= target) clearInterval(timer);
+  },16);
+}
+const counterObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting && !e.target.dataset.done){
+      e.target.dataset.done = '1';
+      animateCounter(e.target);
+    }
+  });
+},{threshold:0.5});
+document.querySelectorAll('.counter[data-target]').forEach(el=>counterObserver.observe(el));
+
+/* ========== GAUGE ANIMATION ========== */
+const gaugeFill = document.getElementById('gaugeFill');
+const circumference = 2 * Math.PI * 35;
+gaugeFill.style.strokeDasharray = circumference;
+gaugeFill.style.strokeDashoffset = circumference;
+const gaugeObserver = new IntersectionObserver((entries)=>{
+  if(entries[0].isIntersecting){
+    setTimeout(()=>{
+      const offset = circumference - (87/100)*circumference;
+      gaugeFill.style.strokeDashoffset = offset;
+    },300);
+    gaugeObserver.disconnect();
+  }
+},{threshold:0.5});
+gaugeObserver.observe(gaugeFill);
+
+/* ========== CHART.JS: TIMELINE ========== */
+const tlCtx = document.getElementById('tlChart').getContext('2d');
+new Chart(tlCtx,{
+  type:'line',
+  data:{
+    labels:['0:00','4:00','8:00','12:00','16:00','20:00'],
+    datasets:[
+      {label:'Events',data:[180,240,290,170,330,210],borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.08)',fill:true,tension:.45,pointRadius:0,borderWidth:2},
+      {label:'Blocked',data:[120,170,210,120,240,155],borderColor:'#4488ff',backgroundColor:'rgba(68,136,255,0.06)',fill:true,tension:.45,pointRadius:0,borderWidth:2}
+    ]
+  },
+  options:{
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6b7f96',font:{size:9}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6b7f96',font:{size:9}}}
+    },
+    animation:{duration:1200,easing:'easeInOutQuart'}
+  }
+});
+
+/* ========== CHART.JS: BAR ========== */
+const barCtx = document.getElementById('barChart').getContext('2d');
+new Chart(barCtx,{
+  type:'bar',
+  data:{
+    labels:['1h','2h','3h','4h','5h','6h','7h','8h','9h','10h','11h','12h'],
+    datasets:[{
+      data:[120,200,225,80,65,105,130,185,210,285,155,85],
+      backgroundColor:(ctx)=> ctx.raw>200 ? 'rgba(255,68,68,0.8)':'rgba(0,212,255,0.75)',
+      borderRadius:5,
+      borderSkipped:false
+    }]
+  },
+  options:{
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6b7f96',font:{size:9}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6b7f96',font:{size:9}}}
+    },
+    animation:{duration:1400,easing:'easeOutBounce'}
+  }
+});
+
+/* ========== LIVE ATTACK MAP ========== */
+(function(){
+  const canvas = document.getElementById('attackMapCanvas');
+  const ctx = canvas.getContext('2d');
+  const tooltip = document.getElementById('mapTooltip');
+
+  // Attack nodes: [x%, y%, label, flag, type, severity]
+  const nodes = [
+    [22, 42,'United States','🇺🇸','Ransomware','High'],
+    [47, 27,'United Kingdom','🇬🇧','Phishing','Medium'],
+    [51, 31,'Germany','🇩🇪','Malware','High'],
+    [45, 56,'India','🇮🇳','Phishing','Medium'],
+    [72, 34,'Japan','🇯🇵','DDoS','Medium'],
+    [64, 54,'Singapore','🇸🇬','DDoS','Low'],
+    [30, 62,'Brazil','🇧🇷','Malware','High'],
+    [76, 68,'Australia','🇦🇺','Ransomware','High'],
+    [52, 22,'Russia','🇷🇺','APT','Critical'],
+    [58, 32,'Ukraine','🇺🇦','Malware','Medium'],
+    [39, 35,'France','🇫🇷','Phishing','Low'],
+    [66, 42,'China','🇨🇳','APT','Critical'],
+  ];
+
+  // Bezier arcs
+  const arcs = [
+    [0,1],[0,2],[0,4],[0,8],[1,3],[2,5],[3,4],[6,0],[7,4],[8,11],[9,0],[10,1],[11,4],[11,7]
+  ];
+
+  let W,H,animFrame=0,activeNode=null;
+  const particles=[];
+
+  function resize(){
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width = rect.width;
+    H = canvas.height = rect.height;
+  }
+  resize();
+  window.addEventListener('resize',()=>{resize()});
+
+  // World map dot grid (simplified bounding polygons approach)
+  function isLand(px,py){
+    const x=px/W, y=py/H;
+    // Simple continent approximations
+    if(x>0.06&&x<0.32&&y>0.15&&y<0.75) return true; // Americas
+    if(x>0.36&&x<0.62&&y>0.1&&y<0.65) return true;  // Europe/Africa
+    if(x>0.58&&x<0.95&&y>0.08&&y<0.72) return true; // Asia/Oceania
+    return false;
+  }
+
+  // Draw dot map
+  function drawDotMap(){
+    const spacing=12;
+    for(let x=0;x<W;x+=spacing){
+      for(let y=0;y<H;y+=spacing){
+        if(isLand(x,y)){
+          ctx.beginPath();
+          ctx.arc(x,y,1.5,0,Math.PI*2);
+          ctx.fillStyle='rgba(0,180,255,0.22)';
+          ctx.fill();
         }
+      }
+    }
+  }
+
+  // Easing
+  function easeInOut(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
+
+  // Arc particles
+  class ArcParticle{
+    constructor(si,di){
+      this.si=si; this.di=di;
+      this.progress=Math.random();
+      this.speed=0.003+Math.random()*0.004;
+      this.sx=nodes[si][0]/100*W;
+      this.sy=nodes[si][1]/100*H;
+      this.dx=nodes[di][0]/100*W;
+      this.dy=nodes[di][1]/100*H;
+      const mx=(this.sx+this.dx)/2;
+      const my=(this.sy+this.dy)/2;
+      const d=Math.sqrt((this.dx-this.sx)**2+(this.dy-this.sy)**2);
+      this.cx=mx+(Math.random()-.5)*d*0.3;
+      this.cy=my-d*0.25-Math.random()*d*0.15;
+      this.color=nodes[si][4]==='Ransomware'||nodes[si][4]==='APT'?'#ff3322':
+                 nodes[si][4]==='Phishing'?'#ffaa00':'#ff6600';
+    }
+    getPos(t){
+      const inv=1-t;
+      return{
+        x:inv*inv*this.sx+2*inv*t*this.cx+t*t*this.dx,
+        y:inv*inv*this.sy+2*inv*t*this.cy+t*t*this.dy
+      };
+    }
+    draw(){
+      const pos=this.getPos(this.progress);
+      ctx.beginPath();
+      ctx.arc(pos.x,pos.y,2.5,0,Math.PI*2);
+      const grad=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,5);
+      grad.addColorStop(0,this.color);
+      grad.addColorStop(1,'transparent');
+      ctx.fillStyle=grad;
+      ctx.fill();
+      this.progress+=this.speed;
+      if(this.progress>1) this.progress=0;
+    }
+  }
+
+  // Init particles
+  arcs.forEach(a=>{
+    for(let i=0;i<3;i++) particles.push(new ArcParticle(a[0],a[1]));
+  });
+
+  // Draw arc path
+  function drawArc(si,di,alpha){
+    const sx=nodes[si][0]/100*W, sy=nodes[si][1]/100*H;
+    const dx=nodes[di][0]/100*W, dy=nodes[di][1]/100*H;
+    const mx=(sx+dx)/2, my=(sy+dy)/2;
+    const d=Math.sqrt((dx-sx)**2+(dy-sy)**2);
+    const cx=mx, cy=my-d*0.25;
+    const grad=ctx.createLinearGradient(sx,sy,dx,dy);
+    grad.addColorStop(0,'rgba(255,50,30,0.6)');
+    grad.addColorStop(1,'rgba(255,50,30,0.05)');
+    ctx.beginPath();
+    ctx.moveTo(sx,sy);
+    ctx.quadraticCurveTo(cx,cy,dx,dy);
+    ctx.strokeStyle=grad;
+    ctx.lineWidth=0.8;
+    ctx.globalAlpha=alpha||0.5;
+    ctx.stroke();
+    ctx.globalAlpha=1;
+  }
+
+  // Draw node
+  function drawNode(n,idx){
+    const x=n[0]/100*W, y=n[1]/100*H;
+    const isActive=activeNode===idx;
+    const t=Date.now()/1000;
+    const pulse=Math.sin(t*2+idx)*0.4+0.6;
+
+    // Ripples
+    for(let r=1;r<=3;r++){
+      const rp=((t*0.5+r*0.33+idx*0.1)%1);
+      ctx.beginPath();
+      ctx.arc(x,y,8+rp*28,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(255,50,30,${(1-rp)*0.4})`;
+      ctx.lineWidth=1;
+      ctx.stroke();
+    }
+    // Core
+    const g=ctx.createRadialGradient(x,y,0,x,y,8);
+    g.addColorStop(0,'rgba(255,255,255,0.95)');
+    g.addColorStop(0.4,'rgba(255,80,50,0.9)');
+    g.addColorStop(1,'rgba(200,30,20,0.3)');
+    ctx.beginPath();
+    ctx.arc(x,y,isActive?9:7,0,Math.PI*2);
+    ctx.fillStyle=g;
+    ctx.fill();
+    ctx.shadowColor='#ff3322';
+    ctx.shadowBlur=isActive?25:15;
+    ctx.fill();
+    ctx.shadowBlur=0;
+
+    // Label
+    ctx.fillStyle='rgba(255,255,255,0.9)';
+    ctx.font=`${isActive?12:10}px Inter,sans-serif`;
+    ctx.fillText(n[2],x+10,y-4);
+  }
+
+  function render(){
+    ctx.clearRect(0,0,W,H);
+    drawDotMap();
+    arcs.forEach(a=>drawArc(a[0],a[1]));
+    particles.forEach(p=>p.draw());
+    nodes.forEach((n,i)=>drawNode(n,i));
+    requestAnimationFrame(render);
+  }
+  render();
+
+  // Hover tooltip
+  canvas.addEventListener('mousemove',e=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    let found=false;
+    nodes.forEach((n,i)=>{
+      const nx=n[0]/100*W, ny=n[1]/100*H;
+      if(Math.hypot(mx-nx,my-ny)<20){
+        activeNode=i;
+        found=true;
+        document.getElementById('ttTitle').textContent=n[3]+' '+n[2];
+        document.getElementById('ttType').textContent=n[4];
+        document.getElementById('ttSev').textContent=n[5];
+        document.getElementById('ttTime').textContent=Math.floor(Math.random()*10+1)+' sec ago';
+        tooltip.style.left=(nx+20)+'px';
+        tooltip.style.top=(ny-20)+'px';
+        tooltip.classList.add('visible');
+      }
     });
+    if(!found){activeNode=null;tooltip.classList.remove('visible')}
+  });
+  canvas.addEventListener('mouseleave',()=>{
+    activeNode=null;tooltip.classList.remove('visible');
+  });
+})();
 
-    // Donut Chart
-    const doCtx = document.getElementById('donutChart').getContext('2d');
-    new Chart(doCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Ransomware','Phishing','Malware','DDoS','Insider'],
-            datasets: [{
-                data: [412,1284,904,218,67],
-                backgroundColor: ['#ff4444','#ffaa00','#4488ff','#00d4ff','#00ff88'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            cutout: '65%',
-            plugins: { legend: { display: false } }
-        }
-    });
+/* ========== LIVE ACTIVITY STREAM ========== */
+(function(){
+  const events=[
+    {num:88350,type:'blk',label:'BLOCK',text:'exfil.dns-tunnel',dim:'internal-pc-07 → 8.8.4.4'},
+    {num:88348,type:'det',label:'DETECT',text:'priv.escalation',dim:'svc-account-12 → admin'},
+    {num:88346,type:'iso',label:'ISOLATE',text:'endpoint.malware',dim:'win-dev-04 — AgentTesla'},
+    {num:88343,type:'blk',label:'BLOCK',text:'c2.beaconing',dim:'192.168.1.55 → 45.33.x.x'},
+    {num:88341,type:'tri',label:'TRIAGE',text:'anomaly.login',dim:'3 countries in 8 min'},
+  ];
+  let idx=0;
+  setInterval(()=>{
+    const feed=document.getElementById('activityFeed');
+    const e=events[idx%events.length];
+    idx++;
+    const line=document.createElement('div');
+    line.className='as-line';
+    line.innerHTML=`<span class="as-num">${e.num+idx}</span><span class="as-badge ${e.type}">${e.label}</span><span class="as-text">${e.text} <span class="as-dim">${e.dim}</span></span>`;
+    feed.insertBefore(line,feed.firstChild);
+    if(feed.children.length>6) feed.removeChild(feed.lastChild);
+  },2800);
+})();
 
-    // Bar Chart
-    const barCtx = document.getElementById('barChart').getContext('2d');
-    new Chart(barCtx, {
-        type: 'bar',
-        data: {
-            labels: ['1h','2h','3h','4h','5h','6h','7h','8h','9h','10h','11h','12h'],
-            datasets: [{
-                data: [120,200,220,80,60,100,120,180,200,280,150,80],
-                backgroundColor: (ctx) => {
-                    const val = ctx.raw;
-                    return val > 200 ? '#ff5555' : '#00d4ff';
-                },
-                borderRadius: 4
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } },
-                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } }
-            }
-        }
-    });
+/* ========== TICKER ANIMATION ========== */
+(function(){
+  const attackTypes=[
+    {type:'RANSOMWARE',cls:'r',loc:'United States',sev:'High',sevColor:'var(--red)'},
+    {type:'PHISHING',cls:'y',loc:'India',sev:'Medium',sevColor:'var(--yellow)'},
+    {type:'MALWARE',cls:'r',loc:'Germany',sev:'High',sevColor:'var(--red)'},
+    {type:'DDoS',cls:'o',loc:'Singapore',sev:'Medium',sevColor:'var(--orange)'},
+    {type:'APT',cls:'r',loc:'Russia',sev:'Critical',sevColor:'var(--red)'},
+    {type:'PHISHING',cls:'y',loc:'Brazil',sev:'Low',sevColor:'var(--green)'},
+  ];
+  let ti=0;
+  setInterval(()=>{
+    const wrap=document.getElementById('tickerWrap');
+    const a=attackTypes[ti%attackTypes.length];
+    ti++;
+    const now=new Date();
+    const t=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+    const item=document.createElement('div');
+    item.className='ticker-item';
+    item.style.cssText='opacity:0;transform:translateY(-8px);transition:all .4s ease';
+    item.innerHTML=`<div class="t-dot" style="background:var(--red)"></div><span class="t-type ${a.cls}">${a.type}</span><span>${a.loc}</span><span style="color:${a.sevColor};font-size:10px">${a.sev}</span>`;
+    wrap.insertBefore(item,wrap.firstChild);
+    setTimeout(()=>{item.style.opacity='1';item.style.transform='none'},50);
+    if(wrap.children.length>4) wrap.removeChild(wrap.lastChild);
+  },3200);
+})();
 
-    // Animate live feed
-    setInterval(() => {
-        const feeds = document.querySelectorAll('.feed-item');
-        feeds.forEach(f => f.style.opacity = '0.6');
-        setTimeout(() => feeds.forEach(f => f.style.opacity = '1'), 500);
-    }, 3000);
-
-    // Animate activity stream numbers
-    setInterval(() => {
-        document.querySelectorAll('.al-num').forEach(el => {
-            el.textContent = (parseInt(el.textContent) + Math.floor(Math.random() * 3)).toString();
-        });
-    }, 2000);
+/* ========== LIVE THREAT COUNTER ========== */
+setInterval(()=>{
+  const el=document.getElementById('ltNum');
+  if(el&&el.dataset.done){
+    const cur=parseInt(el.textContent.replace(/,/g,''));
+    const delta=Math.floor(Math.random()*5)+1;
+    el.textContent=(cur+delta).toLocaleString();
+  }
+},1800);
 </script>
-
 </body>
 </html>
