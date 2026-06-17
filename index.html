@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HITH - Threat Hunt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #050d1a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Background stripes effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 60px,
+                rgba(255, 255, 255, 0.015) 60px,
+                rgba(255, 255, 255, 0.015) 61px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NAVBAR */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 50px;
+            position: relative;
+            z-index: 10;
+            background: transparent;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #3b5bdb, #1c3faa);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text span:first-child {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: white;
+        }
+
+        .logo-text span:last-child {
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: #8899aa;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            text-decoration: none;
+            color: #cdd6e0;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links li a:hover {
+            color: white;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .nav-links li a.active {
+            background: #1e2a3a;
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-btn {
+            background: white;
+            color: #050d1a;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            z-index: 5;
+            padding: 80px 50px 100px;
+            max-width: 1400px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 25px;
+            padding: 8px 18px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #aab4c0;
+            margin-bottom: 40px;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #4a6cf7;
+            border-radius: 50%;
+        }
+
+        .hero h1 {
+            font-size: clamp(50px, 7vw, 100px);
+            font-weight: 800;
+            line-height: 1.05;
+            color: white;
+            margin-bottom: 30px;
+            max-width: 900px;
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #8899aa;
+            max-width: 520px;
+            margin-bottom: 45px;
+        }
+
+        .hero p strong {
+            color: white;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-light {
+            background: white;
+            color: #050d1a;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-light:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.15);
+        }
+
+        .btn-dark {
+            background: #1a2535;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-dark:hover {
+            background: #243044;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* GLOW EFFECT */
+        .glow {
+            position: fixed;
+            top: -100px;
+            right: -100px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 91, 219, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .glow2 {
+            position: fixed;
+            bottom: -200px;
+            left: 200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(28, 63, 170, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 50px 20px 80px;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn-light, .btn-dark {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Glow Effects -->
+    <div class="glow"></div>
+    <div class="glow2"></div>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="logo">
+            <div class="logo-icon">🛡</div>
+            <div class="logo-text">
+                <span>HITH</span>
+                <span>THREAT HUNT</span>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="#" class="active">Home</a></li>
+            <li><a href="#">Viranetra</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Solutions</a></li>
+            <li><a href="#">Industries</a></li>
+            <li><a href="#">Research</a></li>
+            <li><a href="#">Company</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+
+        <button class="nav-btn">Request Assessment →</button>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-badge">CYBER DEFENSE AT THE SPEED OF INTELLIGENCE</div>
+
+        <h1>Hunt threats before they become breaches.</h1>
+
+        <p>
+            Advanced threat hunting, penetration testing, SOC operations, 
+            cloud security, incident response, digital forensics, and 
+            AI-powered security operations — unified inside <strong>Viranetra.</strong>
+        </p>
+
+        <div class="hero-buttons">
+            <a href="#" class="btn-light">Request Assessment →</a>
+            <a href="#" class="btn-dark">Explore Viranetra →</a>
+        </div>
+    </section>
+
+</body>
+</html>
