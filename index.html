@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HITH - Threat Hunt</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -18,7 +19,6 @@
             overflow-x: hidden;
         }
 
-        /* Background stripes effect */
         body::before {
             content: '';
             position: fixed;
@@ -30,14 +30,14 @@
                 90deg,
                 transparent,
                 transparent 60px,
-                rgba(255, 255, 255, 0.015) 60px,
-                rgba(255, 255, 255, 0.015) 61px
+                rgba(255,255,255,0.015) 60px,
+                rgba(255,255,255,0.015) 61px
             );
             pointer-events: none;
             z-index: 0;
         }
 
-        /* NAVBAR */
+        /* ===== NAVBAR ===== */
         nav {
             display: flex;
             align-items: center;
@@ -45,7 +45,6 @@
             padding: 18px 50px;
             position: relative;
             z-index: 10;
-            background: transparent;
         }
 
         .logo {
@@ -57,7 +56,7 @@
         .logo-icon {
             width: 42px;
             height: 42px;
-            background: linear-gradient(135deg, #3b5bdb, #1c3faa);
+            background: linear-gradient(135deg, #00d4ff, #0066cc);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -67,19 +66,15 @@
             color: white;
         }
 
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-
         .logo-text span:first-child {
+            display: block;
             font-size: 16px;
             font-weight: 700;
             letter-spacing: 2px;
-            color: white;
         }
 
         .logo-text span:last-child {
+            display: block;
             font-size: 10px;
             letter-spacing: 3px;
             color: #8899aa;
@@ -113,31 +108,27 @@
         }
 
         .nav-btn {
-            background: white;
+            background: #00d4ff;
             color: #050d1a;
             border: none;
             padding: 10px 22px;
             border-radius: 25px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             transition: all 0.3s ease;
         }
 
         .nav-btn:hover {
-            background: #e0e0e0;
+            background: #00b8d9;
             transform: translateY(-1px);
         }
 
-        /* HERO SECTION */
+        /* ===== HERO SECTION ===== */
         .hero {
             position: relative;
             z-index: 5;
             padding: 80px 50px 100px;
-            max-width: 1400px;
         }
 
         .hero-badge {
@@ -209,7 +200,6 @@
         .btn-light:hover {
             background: #e0e0e0;
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255,255,255,0.15);
         }
 
         .btn-dark {
@@ -231,17 +221,1031 @@
         .btn-dark:hover {
             background: #243044;
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        /* GLOW EFFECT */
+        /* ===== SECTION LABELS ===== */
+        .section-label {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #00d4ff;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        /* ===== MEET VIRANETRA SECTION ===== */
+        .viranetra-section {
+            padding: 80px 50px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .viranetra-section h2 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .viranetra-section h2 span {
+            color: #00d4ff;
+        }
+
+        .viranetra-section > p {
+            font-size: 16px;
+            color: #8899aa;
+            max-width: 700px;
+            line-height: 1.7;
+            margin-bottom: 50px;
+        }
+
+        /* Dashboard Window */
+        .dashboard-window {
+            background: #0a1628;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        }
+
+        .window-header {
+            background: #0d1e30;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 7px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #28ca41; }
+
+        .window-title {
+            font-size: 12px;
+            color: #8899aa;
+            font-family: monospace;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #00d4ff;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .dashboard-content {
+            display: flex;
+            height: 500px;
+        }
+
+        /* Sidebar */
+        .dash-sidebar {
+            width: 200px;
+            background: #091422;
+            padding: 20px 0;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+
+        .dash-sidebar ul {
+            list-style: none;
+        }
+
+        .dash-sidebar ul li {
+            padding: 10px 20px;
+            font-size: 13px;
+            color: #8899aa;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .dash-sidebar ul li:hover {
+            color: white;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .dash-sidebar ul li.active {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border-left: 2px solid #00d4ff;
+        }
+
+        .dash-sidebar ul li::before {
+            content: '•';
+            font-size: 8px;
+        }
+
+        /* Main dashboard area */
+        .dash-main {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Stats cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #0d1e30;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #8899aa;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .stat-bar {
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 1px;
+            width: 60%;
+        }
+
+        /* Security Posture Circle */
+        .posture-card {
+            background: #0d1e30;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .circle-gauge {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#00d4ff 0deg 313deg, #1a2535 313deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .circle-gauge::before {
+            content: '';
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            background: #0d1e30;
+            border-radius: 50%;
+        }
+
+        .circle-gauge span {
+            position: relative;
+            z-index: 1;
+            font-size: 18px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .posture-info .score-sub {
+            font-size: 10px;
+            color: #8899aa;
+        }
+
+        .posture-trend {
+            color: #00d4ff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .posture-sub {
+            font-size: 11px;
+            color: #8899aa;
+        }
+
+        /* Bottom row */
+        .dash-bottom {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .timeline-card {
+            background: #0d1e30;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .timeline-card h4 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .timeline-card p {
+            font-size: 10px;
+            color: #8899aa;
+            margin-bottom: 10px;
+        }
+
+        .threat-feed {
+            background: #0d1e30;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .threat-feed h4 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .feed-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .feed-item:last-child { border-bottom: none; }
+
+        .feed-item .feed-title {
+            font-size: 12px;
+            color: #cdd6e0;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .feed-item .feed-title::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .feed-item.critical .feed-title::before { background: #ff4444; }
+        .feed-item.high .feed-title::before { background: #ffaa00; }
+        .feed-item.medium .feed-title::before { background: #00d4ff; }
+        .feed-item.low .feed-title::before { background: #00ff88; }
+
+        .feed-item .feed-meta {
+            font-size: 10px;
+            margin-left: 12px;
+        }
+
+        .feed-item.critical .feed-meta { color: #ff4444; }
+        .feed-item.high .feed-meta { color: #ffaa00; }
+        .feed-item.medium .feed-meta { color: #00d4ff; }
+        .feed-item.low .feed-meta { color: #00ff88; }
+
+        /* ===== BOTTOM STATS ROW (attack surface etc) ===== */
+        .bottom-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .bottom-stat-card {
+            background: #0d1e30;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .bottom-stat-card .bsc-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #8899aa;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bottom-stat-card .bsc-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .bottom-stat-card .bsc-sub {
+            font-size: 11px;
+            color: #8899aa;
+        }
+
+        /* ===== FEATURES GRID ===== */
+        .features-section {
+            padding: 60px 50px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .feature-card {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(0,212,255,0.3);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0,212,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+
+        .feature-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: #8899aa;
+            line-height: 1.6;
+        }
+
+        /* ===== THREAT COMMAND CENTER ===== */
+        .threat-center {
+            padding: 80px 50px;
+            position: relative;
+            z-index: 5;
+            background: linear-gradient(180deg, #050d1a 0%, #071520 100%);
+        }
+
+        .threat-center-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        .threat-center h2 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .threat-center h2 span {
+            color: #00d4ff;
+        }
+
+        .threat-center > .threat-center-header > div > p {
+            font-size: 15px;
+            color: #8899aa;
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .soc-badge {
+            background: rgba(0,212,255,0.08);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 25px;
+            padding: 8px 18px;
+            font-size: 12px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .soc-dot {
+            width: 7px;
+            height: 7px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Threat stats */
+        .threat-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .threat-stat {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .threat-stat .ts-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #8899aa;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .threat-stat .ts-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .ts-value.orange { color: #ff8800; }
+        .ts-value.red { color: #ff4444; }
+        .ts-value.cyan { color: #00d4ff; }
+        .ts-value.green { color: #00ff88; }
+
+        .threat-stat .ts-sub {
+            font-size: 12px;
+            color: #8899aa;
+        }
+
+        /* Map + chart row */
+        .map-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .map-card {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 300px;
+        }
+
+        .map-card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .map-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .map-events {
+            font-size: 12px;
+            color: #00d4ff;
+        }
+
+        .map-card p {
+            font-size: 11px;
+            color: #8899aa;
+            margin-bottom: 16px;
+        }
+
+        /* Dot map */
+        .dot-map {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            background: #071520;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dot-map-grid {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle, rgba(0,212,255,0.25) 1px, transparent 1px);
+            background-size: 12px 12px;
+        }
+
+        .attack-point {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .attack-point .ap-dot {
+            width: 12px;
+            height: 12px;
+            background: #ff4444;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255,68,68,0.6);
+            animation: attackPulse 2s infinite;
+        }
+
+        @keyframes attackPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,68,68,0.6); }
+            50% { transform: scale(1.3); box-shadow: 0 0 25px rgba(255,68,68,0.9); }
+        }
+
+        .attack-point .ap-label {
+            font-size: 9px;
+            color: white;
+            margin-top: 3px;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.6);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* Donut chart card */
+        .donut-card {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .donut-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .donut-card p {
+            font-size: 11px;
+            color: #8899aa;
+            margin-bottom: 16px;
+        }
+
+        .donut-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .legend-item:last-child { border-bottom: none; }
+
+        .legend-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-count {
+            font-size: 12px;
+            color: #8899aa;
+        }
+
+        /* Bottom row - timeline + activity */
+        .bottom-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .activity-card {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: monospace;
+        }
+
+        .activity-card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .activity-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .tail-badge {
+            font-size: 11px;
+            color: #00d4ff;
+        }
+
+        .activity-sub {
+            font-size: 11px;
+            color: #8899aa;
+            margin-bottom: 16px;
+            font-family: monospace;
+        }
+
+        .activity-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 12px;
+        }
+
+        .activity-line:last-child { border-bottom: none; }
+
+        .al-num {
+            color: #8899aa;
+            flex-shrink: 0;
+        }
+
+        .al-action {
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .al-action.block { background: rgba(255,68,68,0.2); color: #ff4444; }
+        .al-action.detect { background: rgba(255,170,0,0.2); color: #ffaa00; }
+        .al-action.isolate { background: rgba(0,212,255,0.2); color: #00d4ff; }
+
+        .al-text {
+            color: #cdd6e0;
+            flex: 1;
+        }
+
+        .al-text .al-dim {
+            color: #8899aa;
+        }
+
+        /* ===== SERVICES SECTION ===== */
+        .services-section {
+            padding: 80px 50px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .services-section h2 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+
+        .services-section h2 span {
+            color: #00d4ff;
+        }
+
+        .services-section > p {
+            font-size: 15px;
+            color: #8899aa;
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 50px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .service-card {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .service-card:hover {
+            border-color: rgba(0,212,255,0.3);
+            transform: translateY(-3px);
+        }
+
+        .service-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .service-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0,212,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+
+        .arrow-link {
+            color: #8899aa;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .arrow-link:hover { color: #00d4ff; }
+
+        .service-card h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .service-card > p {
+            font-size: 13px;
+            color: #8899aa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .service-section-title {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #00d4ff;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .service-list {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .service-list li {
+            font-size: 12px;
+            color: #cdd6e0;
+            padding: 3px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .service-list li::before {
+            content: '•';
+            color: #00d4ff;
+        }
+
+        .service-impact {
+            font-size: 12px;
+            color: #8899aa;
+            line-height: 1.5;
+        }
+
+        /* ===== METHODOLOGY SECTION ===== */
+        .methodology-section {
+            padding: 80px 50px;
+            position: relative;
+            z-index: 5;
+            background: linear-gradient(180deg, #050d1a 0%, #071520 100%);
+        }
+
+        .methodology-section h2 {
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .methodology-section h2 span {
+            color: #00d4ff;
+        }
+
+        .methodology-section > p {
+            font-size: 15px;
+            color: #8899aa;
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 50px;
+        }
+
+        .methodology-steps {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            position: relative;
+        }
+
+        .step-card {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 18px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .step-card:hover {
+            border-color: rgba(0,212,255,0.3);
+        }
+
+        .step-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(0,212,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+
+        .step-num {
+            font-size: 11px;
+            color: #8899aa;
+            font-family: monospace;
+        }
+
+        .step-card h4 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .step-card p {
+            font-size: 11px;
+            color: #8899aa;
+            line-height: 1.5;
+        }
+
+        .step-arrow {
+            position: absolute;
+            right: -14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00d4ff;
+            font-size: 12px;
+            z-index: 2;
+        }
+
+        /* ===== WHY HITH SECTION ===== */
+        .why-section {
+            padding: 80px 50px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .why-section h2 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .why-section h2 span {
+            color: #00d4ff;
+        }
+
+        .why-section > p {
+            font-size: 15px;
+            color: #8899aa;
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 50px;
+        }
+
+        .comparison-table {
+            background: #0a1628;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .table-header span {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #8899aa;
+            text-transform: uppercase;
+        }
+
+        .table-header span:last-child {
+            color: #00d4ff;
+            font-weight: 700;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            padding: 18px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .table-row:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .table-row:last-child { border-bottom: none; }
+
+        .table-row .capability {
+            font-size: 14px;
+            color: #cdd6e0;
+        }
+
+        .table-row .vendor-val {
+            font-size: 14px;
+        }
+
+        .vendor-val.cross { color: #ff4444; }
+        .vendor-val.partial { color: #ffaa00; }
+        .vendor-val.check { color: #00ff88; font-size: 18px; }
+
+        /* ===== GLOW EFFECTS ===== */
         .glow {
             position: fixed;
             top: -100px;
             right: -100px;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(59, 91, 219, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
             pointer-events: none;
             z-index: 1;
         }
@@ -252,88 +1256,686 @@
             left: 200px;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(28, 63, 170, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0,100,200,0.06) 0%, transparent 70%);
             pointer-events: none;
             z-index: 1;
         }
 
-        /* RESPONSIVE */
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .services-grid,
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .methodology-steps {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .stats-row,
+            .threat-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
-            nav {
-                padding: 15px 20px;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .hero {
-                padding: 50px 20px 80px;
-            }
-
-            .hero h1 {
-                font-size: 42px;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-            }
-
-            .btn-light, .btn-dark {
-                justify-content: center;
-            }
+            nav { padding: 15px 20px; }
+            .nav-links { display: none; }
+            .hero,
+            .viranetra-section,
+            .threat-center,
+            .services-section,
+            .methodology-section,
+            .why-section,
+            .features-section { padding: 40px 20px; }
+            .services-grid,
+            .features-grid { grid-template-columns: 1fr; }
+            .methodology-steps { grid-template-columns: repeat(2, 1fr); }
+            .map-row,
+            .bottom-row { grid-template-columns: 1fr; }
+            .threat-stats { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-content { flex-direction: column; height: auto; }
+            .dash-sidebar { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Glow Effects -->
-    <div class="glow"></div>
-    <div class="glow2"></div>
+<div class="glow"></div>
+<div class="glow2"></div>
 
-    <!-- NAVBAR -->
-    <nav>
-        <div class="logo">
-            <div class="logo-icon">🛡</div>
-            <div class="logo-text">
-                <span>HITH</span>
-                <span>THREAT HUNT</span>
+<!-- ===== NAVBAR ===== -->
+<nav>
+    <div class="logo">
+        <div class="logo-icon">🛡</div>
+        <div class="logo-text">
+            <span>HITH</span>
+            <span>THREAT HUNT</span>
+        </div>
+    </div>
+    <ul class="nav-links">
+        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#">Viranetra</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Solutions</a></li>
+        <li><a href="#">Industries</a></li>
+        <li><a href="#">Research</a></li>
+        <li><a href="#">Company</a></li>
+        <li><a href="#">Contact</a></li>
+    </ul>
+    <button class="nav-btn">Request Assessment →</button>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+    <div class="hero-badge">CYBER DEFENSE AT THE SPEED OF INTELLIGENCE</div>
+    <h1>Hunt threats before they become breaches.</h1>
+    <p>Advanced threat hunting, penetration testing, SOC operations, cloud security, incident response, digital forensics, and AI-powered security operations — unified inside <strong>Viranetra.</strong></p>
+    <div class="hero-buttons">
+        <a href="#" class="btn-light">Request Assessment →</a>
+        <a href="#" class="btn-dark">Explore Viranetra →</a>
+    </div>
+</section>
+
+<!-- ===== MEET VIRANETRA ===== -->
+<section class="viranetra-section">
+    <div class="section-label">THE PLATFORM</div>
+    <h2>Meet <span>Viranetra</span></h2>
+    <p>A unified cyber defense platform — telemetry, intelligence, detection, and response in one operator-grade console.</p>
+
+    <div class="dashboard-window">
+        <div class="window-header">
+            <div class="window-dots">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+            </div>
+            <div class="window-title">viranetra.hith.io / soc / overview</div>
+            <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+        </div>
+        <div class="dashboard-content">
+            <div class="dash-sidebar">
+                <ul>
+                    <li class="active">Overview</li>
+                    <li>Threats</li>
+                    <li>Assets</li>
+                    <li>Vulnerabilities</li>
+                    <li>Compliance</li>
+                    <li>Investigations</li>
+                    <li>Reports</li>
+                </ul>
+            </div>
+            <div class="dash-main">
+                <div class="stats-row">
+                    <div class="posture-card">
+                        <div class="circle-gauge"><span>87</span></div>
+                        <div class="posture-info">
+                            <div style="font-size:10px;color:#8899aa;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">SECURITY POSTURE</div>
+                            <div style="font-size:11px;color:#8899aa">/100</div>
+                            <div class="posture-trend">↗ +4.2 wk</div>
+                            <div class="posture-sub">Above peer avg.</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">ACTIVE THREATS <span>⚠️</span></div>
+                        <div class="stat-value">1,284</div>
+                        <div class="stat-bar"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">CRITICAL ALERTS <span style="color:#ff4444">🛡</span></div>
+                        <div class="stat-value">37</div>
+                        <div class="stat-bar"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">ASSETS MONITORED</div>
+                        <div class="stat-value">48,927</div>
+                        <div class="stat-bar"></div>
+                    </div>
+                </div>
+
+                <div class="dash-bottom">
+                    <div class="timeline-card">
+                        <h4>Detection Timeline · last 24h</h4>
+                        <p>Events vs. Blocked</p>
+                        <canvas id="timelineChart" height="120"></canvas>
+                    </div>
+                    <div class="threat-feed">
+                        <h4>Threat Intelligence Feed <span style="color:#00d4ff;font-size:14px">🌐</span></h4>
+                        <div class="feed-item critical">
+                            <div class="feed-title">Lateral movement detected · prod-db-04</div>
+                            <div class="feed-meta">CRITICAL · 12S AGO</div>
+                        </div>
+                        <div class="feed-item high">
+                            <div class="feed-title">Anomalous OAuth grant · M365 tenant</div>
+                            <div class="feed-meta">HIGH · 47S AGO</div>
+                        </div>
+                        <div class="feed-item medium">
+                            <div class="feed-title">Brute-force on VPN gateway (218 attempts)</div>
+                            <div class="feed-meta">MEDIUM · 1M AGO</div>
+                        </div>
+                        <div class="feed-item low">
+                            <div class="feed-title">New asset discovered: 10.42.8.91</div>
+                            <div class="feed-meta">LOW · 2M AGO</div>
+                        </div>
+                        <div class="feed-item high">
+                            <div class="feed-title">Suspicious PowerShell — base64 payload</div>
+                            <div class="feed-meta">HIGH · 3M AGO</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 0 20px 20px 20px;">
+            <div class="bottom-stats">
+                <div class="bottom-stat-card">
+                    <div class="bsc-label">ATTACK SURFACE <span>🔗</span></div>
+                    <div class="bsc-value">412</div>
+                    <div class="bsc-sub">exposed assets</div>
+                </div>
+                <div class="bottom-stat-card">
+                    <div class="bsc-label">CLOUD WORKLOADS ☁</div>
+                    <div class="bsc-value">8,201</div>
+                    <div class="bsc-sub">across AWS / Azure / GCP</div>
+                </div>
+                <div class="bottom-stat-card">
+                    <div class="bsc-label">MTTR 〜</div>
+                    <div class="bsc-value">4.2m</div>
+                    <div class="bsc-sub">mean time to respond</div>
+                </div>
+                <div class="bottom-stat-card">
+                    <div class="bsc-label">EXEC RISK INDEX ↗</div>
+                    <div class="bsc-value" style="font-size:22px;font-weight:800">Low</div>
+                    <div class="bsc-sub">down from Moderate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FEATURES GRID ===== -->
+<section class="features-section">
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🧠</div>
+            <h3>Threat Intelligence</h3>
+            <p>Curated feeds from 60+ sources, mapped to MITRE ATT&CK.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">👁</div>
+            <h3>Dark Web Monitoring</h3>
+            <p>Continuous scanning for leaked credentials, IP, and PII.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🛡</div>
+            <h3>Vulnerability Management</h3>
+            <p>Prioritized by exploitability, business impact, and EPSS.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3>Asset Discovery</h3>
+            <p>Agentless mapping of cloud, on-prem, and shadow IT.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Risk Scoring</h3>
+            <p>Quantitative cyber risk in $ — ready for the board.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Compliance Monitoring</h3>
+            <p>Live posture against NIST, ISO 27001, SOC 2, PCI.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Executive Reporting</h3>
+            <p>Auto-generated CISO reports and risk narratives.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>AI Security Assistant</h3>
+            <p>Investigate, summarize, and respond in natural language.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== THREAT COMMAND CENTER ===== -->
+<section class="threat-center">
+    <div class="threat-center-header">
+        <div>
+            <div class="section-label">THREAT COMMAND CENTER</div>
+            <h2>Global threat activity, <span>live.</span></h2>
+            <p>Aggregated telemetry from the Viranetra fleet — anonymized and streamed in real time across regions, sectors, and ATT&CK techniques.</p>
+        </div>
+        <div class="soc-badge">
+            <div class="soc-dot"></div>
+            SOC · tier-3 analysts on shift
+        </div>
+    </div>
+
+    <div class="threat-stats">
+        <div class="threat-stat">
+            <div class="ts-label">ACTIVE THREATS</div>
+            <div class="ts-value orange">12,847</div>
+            <div class="ts-sub">+318 last hr</div>
+        </div>
+        <div class="threat-stat">
+            <div class="ts-label">CRITICAL ALERTS</div>
+            <div class="ts-value red">47</div>
+            <div class="ts-sub">↓ 12% wk</div>
+        </div>
+        <div class="threat-stat">
+            <div class="ts-label">SECURITY EVENTS</div>
+            <div class="ts-value cyan">4.2M</div>
+            <div class="ts-sub">today</div>
+        </div>
+        <div class="threat-stat">
+            <div class="ts-label">AVG RESPONSE</div>
+            <div class="ts-value green">4m 12s</div>
+            <div class="ts-sub">MTTR · last 24h</div>
+        </div>
+    </div>
+
+    <div class="map-row">
+        <div class="map-card">
+            <div class="map-card-header">
+                <h4>Geographic Attack Map</h4>
+                <span class="map-events">611 events</span>
+            </div>
+            <p>Origin of attempted intrusions · last 60min</p>
+            <div class="dot-map">
+                <div class="dot-map-grid"></div>
+                <div class="attack-point" style="left:22%;top:40%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">United States</div>
+                </div>
+                <div class="attack-point" style="left:46%;top:28%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">United Kingdom</div>
+                </div>
+                <div class="attack-point" style="left:50%;top:32%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">Germany</div>
+                </div>
+                <div class="attack-point" style="left:45%;top:55%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">India</div>
+                </div>
+                <div class="attack-point" style="left:72%;top:35%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">Japan</div>
+                </div>
+                <div class="attack-point" style="left:65%;top:55%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">Singapore</div>
+                </div>
+                <div class="attack-point" style="left:30%;top:62%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">Brazil</div>
+                </div>
+                <div class="attack-point" style="left:75%;top:68%">
+                    <div class="ap-dot"></div>
+                    <div class="ap-label">Australia</div>
+                </div>
             </div>
         </div>
 
-        <ul class="nav-links">
-            <li><a href="#" class="active">Home</a></li>
-            <li><a href="#">Viranetra</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Solutions</a></li>
-            <li><a href="#">Industries</a></li>
-            <li><a href="#">Research</a></li>
-            <li><a href="#">Company</a></li>
-            <li><a href="#">Contact</a></li>
-        </ul>
-
-        <button class="nav-btn">Request Assessment →</button>
-    </nav>
-
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="hero-badge">CYBER DEFENSE AT THE SPEED OF INTELLIGENCE</div>
-
-        <h1>Hunt threats before they become breaches.</h1>
-
-        <p>
-            Advanced threat hunting, penetration testing, SOC operations, 
-            cloud security, incident response, digital forensics, and 
-            AI-powered security operations — unified inside <strong>Viranetra.</strong>
-        </p>
-
-        <div class="hero-buttons">
-            <a href="#" class="btn-light">Request Assessment →</a>
-            <a href="#" class="btn-dark">Explore Viranetra →</a>
+        <div class="donut-card">
+            <h4>Threat Categories</h4>
+            <p>Distribution · 24h</p>
+            <div class="donut-container">
+                <canvas id="donutChart" width="160" height="160"></canvas>
+            </div>
+            <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:#ff4444"></div> Ransomware</div>
+                <div class="legend-count">412</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:#ffaa00"></div> Phishing</div>
+                <div class="legend-count">1284</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:#4488ff"></div> Malware</div>
+                <div class="legend-count">904</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:#00d4ff"></div> DDoS</div>
+                <div class="legend-count">218</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:#00ff88"></div> Insider</div>
+                <div class="legend-count">67</div>
+            </div>
         </div>
-    </section>
+    </div>
+
+    <div class="bottom-row">
+        <div class="timeline-card">
+            <h4>Detection Timeline · last 12h</h4>
+            <p>Severity-weighted detections per hour</p>
+            <canvas id="barChart" height="140"></canvas>
+        </div>
+        <div class="activity-card">
+            <div class="activity-card-header">
+                <h4>Live Activity Stream</h4>
+                <span class="tail-badge">tail -f</span>
+            </div>
+            <div class="activity-sub">soc.viranetra.io / tap</div>
+            <div class="activity-line">
+                <span class="al-num">88345</span>
+                <span class="al-action block">BLOCK</span>
+                <span class="al-text">phishing.cred-harvest <span class="al-dim">AS14618 → corp-mail-01</span></span>
+            </div>
+            <div class="activity-line">
+                <span class="al-num">88342</span>
+                <span class="al-action detect">DETECT</span>
+                <span class="al-text">lateral.movement <span class="al-dim">win-srv-03 → win-dc-01 (445)</span></span>
+            </div>
+            <div class="activity-line">
+                <span class="al-num">88339</span>
+                <span class="al-action isolate">ISOLATE</span>
+                <span class="al-text">endpoint.suspicious <span class="al-dim">mac-design-21 — CryptoMiner</span></span>
+            </div>
+            <div class="activity-line">
+                <span class="al-num">88336</span>
+                <span class="al-action block">BLOCK</span>
+                <span class="al-text">c2.beacon <span class="al-dim">10.0.4.18 → 185.220.101.x (Tor)</span></span>
+            </div>
+            <div class="activity-line" style="opacity:0.4">
+                <span class="al-num">88333</span>
+                <span class="al-action detect">TRIAGE</span>
+                <span class="al-text">anomaly.iam <span class="al-dim">role-assumed from new geo...</span></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SERVICES SECTION ===== -->
+<section class="services-section">
+    <div class="section-label">SERVICES</div>
+    <h2>Operator-grade security, <span>end to end.</span></h2>
+    <p>Eight specialized practices. One accountable team. Outcomes measured in dwell time, not deliverables.</p>
+
+    <div class="services-grid">
+        <div class="service-card">
+            <div class="service-card-top">
+                <div class="service-icon">🎯</div>
+                <div class="arrow-link">↗</div>
+            </div>
+            <h3>Threat Hunting</h3>
+            <p>Hypothesis-driven hunts across endpoints, identity, network, and cloud — informed by MITRE ATT&CK.</p>
+            <div class="service-section-title">KEY DELIVERABLES</div>
+            <ul class="service-list">
+                <li>Hunt playbooks</li>
+                <li>ATT&CK coverage map</li>
+                <li>Indicator-of-attack catalog</li>
+            </ul>
+            <div class="service-section-title">BUSINESS IMPACT</div>
+            <div class="service-impact">Find adversaries living off the land before payloads detonate.</div>
+        </div>
+        <div class="service-card">
+            <div class="service-card-top">
+                <div class="service-icon">🐛</div>
+                <div class="arrow-link">↗</div>
+            </div>
+            <h3>Penetration Testing</h3>
+            <p>Black, grey, and white-box engagements aligned with PTES and OWASP — including red team scenarios.</p>
+            <div class="service-section-title">KEY DELIVERABLES</div>
+            <ul class="service-list">
+                <li>Executive + technical report</li>
+                <li>Attack path graph</li>
+                <li>Re-test certification</li>
+            </ul>
+            <div class="service-section-title">BUSINESS IMPACT</div>
+            <div class="service-impact">Prove control efficacy with reproducible, ethical exploitation.</div>
+        </div>
+        <div class="service-card">
+            <div class="service-card-top">
+                <div class="service-icon">🎧</div>
+                <div class="arrow-link">↗</div>
+            </div>
+            <h3>SOC as a Service</h3>
+            <p>24/7/365 monitoring with tier-1 through tier-3 analysts. SLA-bound triage, containment, and escalation.</p>
+            <div class="service-section-title">KEY DELIVERABLES</div>
+            <ul class="service-list">
+                <li>MDR runbooks</li>
+                <li>Daily SOC digest</li>
+                <li>Quarterly tuning</li>
+            </ul>
+            <div class="service-section-title">BUSINESS IMPACT</div>
+            <div class="service-impact">Mean-time-to-respond under 8 minutes for critical events.</div>
+        </div>
+        <div class="service-card">
+            <div class="service-card-top">
+                <div class="service-icon">☁</div>
+                <div class="arrow-link">↗</div>
+            </div>
+            <h3>Cloud Security</h3>
+            <p>AWS, Azure, GCP, and Kubernetes hardening. CSPM, CIEM, and workload identity governance.</p>
+            <div class="service-section-title">KEY DELIVERABLES</div>
+            <ul class="service-list">
+                <li>Cloud benchmark report</li>
+                <li>IaC guardrails</li>
+                <li>Drift detection</li>
+            </ul>
+            <div class="service-section-title">BUSINESS IMPACT</div>
+            <div class="service-impact">Eliminate misconfiguration — the most common cause of cloud breaches.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== METHODOLOGY SECTION ===== -->
+<section class="methodology-section">
+    <div class="section-label">METHODOLOGY</div>
+    <h2>How we <span>hunt threats.</span></h2>
+    <p>A continuous loop — not a linear project. Each step feeds the next, and informs the model.</p>
+
+    <div class="methodology-steps">
+        <div class="step-card">
+            <div class="step-card-top">
+                <div class="step-icon">🗄</div>
+                <div class="step-num">01</div>
+            </div>
+            <h4>Collect Telemetry</h4>
+            <p>EDR, NDR, identity, cloud, SaaS, OT.</p>
+            <div class="step-arrow">→</div>
+        </div>
+        <div class="step-card">
+            <div class="step-card-top">
+                <div class="step-icon">🌐</div>
+                <div class="step-num">02</div>
+            </div>
+            <h4>Threat Intelligence</h4>
+            <p>60+ feeds, dark web, ISAC, internal IOCs.</p>
+            <div class="step-arrow">→</div>
+        </div>
+        <div class="step-card">
+            <div class="step-card-top">
+                <div class="step-icon">🧠</div>
+                <div class="step-num">03</div>
+            </div>
+            <h4>Behavior Analytics</h4>
+            <p>UEBA + ML baselining of normal.</p>
+            <div class="step-arrow">→</div>
+        </div>
+        <div class="step-card">
+            <div class="step-card-top">
+                <div class="step-icon">🔍</div>
+                <div class="step-num">04</div>
+            </div>
+            <h4>Threat Detection</h4>
+            <p>ATT&CK-aligned detections at scale.</p>
+            <div class="step-arrow">→</div>
+        </div>
+        <div class="step-card">
+            <div class="step-card-top">
+                <div class="step-icon">🔗</div>
+                <div class="step-num">05</div>
+            </div>
+            <h4>Investigation</h4>
+            <p>Graph-based correlation across surfaces.</p>
+            <div class="step-arrow">→</div>
+        </div>
+        <div class="step-card">
+            <div class="step-card-top">
+                <div class="step-icon">📈</div>
+                <div class="step-num">06</div>
+            </div>
+            <h4>Response</h4>
+            <p>Contain, isolate, revoke, rotate.</p>
+            <div class="step-arrow">→</div>
+        </div>
+        <div class="step-card">
+            <div class="step-card-top">
+                <div class="step-icon">🛡</div>
+                <div class="step-num">07</div>
+            </div>
+            <h4>Remediation</h4>
+            <p>Harden, patch, tune, validate.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== WHY HITH SECTION ===== -->
+<section class="why-section">
+    <div class="section-label">THE DIFFERENCE</div>
+    <h2>Why <span>HITH.</span></h2>
+    <p>Most vendors sell tools. We deliver outcomes — backed by humans who have lived through breaches.</p>
+
+    <div class="comparison-table">
+        <div class="table-header">
+            <span>CAPABILITY</span>
+            <span>TRADITIONAL VENDORS</span>
+            <span>HITH</span>
+        </div>
+        <div class="table-row">
+            <div class="capability">Proactive threat hunting</div>
+            <div class="vendor-val cross">✕</div>
+            <div class="vendor-val check">✓</div>
+        </div>
+        <div class="table-row">
+            <div class="capability">24/7 tier-3 SOC coverage</div>
+            <div class="vendor-val cross">✕</div>
+            <div class="vendor-val check">✓</div>
+        </div>
+        <div class="table-row">
+            <div class="capability">MITRE ATT&CK-aligned detections</div>
+            <div class="vendor-val partial">Partial</div>
+            <div class="vendor-val check">✓</div>
+        </div>
+        <div class="table-row">
+            <div class="capability">Real-world breach response (1-hr SLA)</div>
+            <div class="vendor-val cross">✕</div>
+            <div class="vendor-val check">✓</div>
+        </div>
+        <div class="table-row">
+            <div class="capability">In-house penetration testers (OSCP/OSEP)</div>
+            <div class="vendor-val cross">✕</div>
+            <div class="vendor-val check">✓</div>
+        </div>
+        <div class="table-row">
+            <div class="capability">Executive-grade risk reporting</div>
+            <div class="vendor-val partial">Generic</div>
+            <div class="vendor-val check">✓</div>
+        </div>
+        <div class="table-row">
+            <div class="capability">Cloud + on-prem + OT coverage</div>
+            <div class="vendor-val partial">Cloud only</div>
+            <div class="vendor-val check">✓</div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Timeline Chart
+    const tlCtx = document.getElementById('timelineChart').getContext('2d');
+    new Chart(tlCtx, {
+        type: 'line',
+        data: {
+            labels: ['0:00','4:00','8:00','12:00','16:00','20:00'],
+            datasets: [{
+                label: 'Events',
+                data: [180,220,280,180,320,200],
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0,212,255,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2
+            },{
+                label: 'Blocked',
+                data: [120,160,200,130,240,150],
+                borderColor: '#4488ff',
+                backgroundColor: 'rgba(68,136,255,0.08)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } }
+            }
+        }
+    });
+
+    // Donut Chart
+    const doCtx = document.getElementById('donutChart').getContext('2d');
+    new Chart(doCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Ransomware','Phishing','Malware','DDoS','Insider'],
+            datasets: [{
+                data: [412,1284,904,218,67],
+                backgroundColor: ['#ff4444','#ffaa00','#4488ff','#00d4ff','#00ff88'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            cutout: '65%',
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: ['1h','2h','3h','4h','5h','6h','7h','8h','9h','10h','11h','12h'],
+            datasets: [{
+                data: [120,200,220,80,60,100,120,180,200,280,150,80],
+                backgroundColor: (ctx) => {
+                    const val = ctx.raw;
+                    return val > 200 ? '#ff5555' : '#00d4ff';
+                },
+                borderRadius: 4
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8899aa', font: { size: 9 } } }
+            }
+        }
+    });
+
+    // Animate live feed
+    setInterval(() => {
+        const feeds = document.querySelectorAll('.feed-item');
+        feeds.forEach(f => f.style.opacity = '0.6');
+        setTimeout(() => feeds.forEach(f => f.style.opacity = '1'), 500);
+    }, 3000);
+
+    // Animate activity stream numbers
+    setInterval(() => {
+        document.querySelectorAll('.al-num').forEach(el => {
+            el.textContent = (parseInt(el.textContent) + Math.floor(Math.random() * 3)).toString();
+        });
+    }, 2000);
+</script>
 
 </body>
 </html>
